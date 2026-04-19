@@ -32,7 +32,8 @@ export function DebugStyleBaseline() {
     setStatus({});
     setTotalCost(0);
 
-    const eventSource = new EventSource(`/api/debug/run-style-baseline?force=${force}`);
+    const localKey = localStorage.getItem("GEMINI_API_KEY") || '';
+    const eventSource = new EventSource(`/api/debug/run-style-baseline?force=${force}&key=${encodeURIComponent(localKey)}`);
     
     eventSource.addEventListener('topic-skipped', (e) => {
       const data = JSON.parse(e.data);

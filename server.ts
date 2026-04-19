@@ -765,7 +765,7 @@ Return ONLY the raw string, do NOT wrap in quotes. Keep it extremely brief.`;
       'Connection': 'keep-alive',
     });
 
-    const apiKey = process.env.GEMINI_API_KEY || process.env.API_KEY || req.header('x-goog-api-key');
+    const apiKey = (req.query.key as string) || process.env.GEMINI_API_KEY || process.env.API_KEY || req.header('x-goog-api-key');
     if (!apiKey) {
       res.write(`data: ${JSON.stringify({ event: 'run-error', error: 'No API Key' })}\n\n`);
       res.end();
@@ -972,7 +972,7 @@ Return ONLY the raw string, do NOT wrap in quotes. Keep it extremely brief.`;
     if (!apiKey) return res.status(400).send("API Key missing");
 
     const ai = new GoogleGenAI({ apiKey });
-    const model = "gemini-1.5-flash"; // Use flash for fast vision QA
+    const model = "gemini-3.1-flash-lite-preview"; // Use flash lite for fast vision QA
 
     const systemInstruction = `You are a quality assurance auditor for industrial safety posters.
 Evaluate the provided image against the Master Base Prompt requirements:
