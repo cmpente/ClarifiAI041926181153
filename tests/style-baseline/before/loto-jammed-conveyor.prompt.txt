@@ -1,0 +1,135 @@
+MASTER ART STYLE & LAYOUT CONSTRAINTS:
+
+REFERENCE IMAGE RULES:
+- The PDF images define the physical environment exactly
+- The generated scene MUST replicate these environmental characteristics
+- DO NOT simplify, generalize, or omit environmental details
+- DO NOT create empty or minimal backgrounds
+- DO NOT substitute generic factory visuals
+
+SUBJECT & MEDIUM:
+A landscape workplace safety poster (16:9 aspect ratio).
+Style: Hand-drawn corporate safety illustration with soft watercolor/airbrush shading and clean comic-style ink outlines. NO rough pencil lines or scratchy crosshatching.
+Aesthetic: Slightly vintage industrial training manual, semi-realistic but clear.
+Background (Outside the panels): Off-white/cream paper texture with a faint vintage vignette.
+
+HEADER (The ONLY Text Allowed):
+Alignment: Centered at the very top.
+Font: Huge, bold, condensed sans-serif.
+Text Line 1 (Black, Largest) and Text Line 2 (Black, 40% size of header, directly below).
+No Other Text: There is absolutely no other readable text, labels, titles, speech bubbles, or timestamps anywhere in the image except the exact headers provided.
+
+PANEL LAYOUT & STATUS ICONS:
+Three equal-width rounded rectangular panels arranged Left / Center / Right.
+Thin black outline borders around each panel (NO thick blue borders).
+Left Panel: RED CIRCULAR "X" MARK below.
+Center Panel: GREEN CIRCULAR CHECK MARK below.
+Right Panel: GREEN CIRCULAR CHECK MARK below.
+
+CHARACTERS (PPE STANDARDS - STRICT ADHERENCE REQUIRED):
+- ALL personnel MUST wear: white lab coats/frocks, clear safety glasses, BLUE nitrile food-safe gloves (NO BARE HANDS EVER), and BLACK rubber boots.
+- CRITICAL: White, semi-transparent mesh BALACLAVA HOODS MUST cover all hair and beards entirely (no hair visible).
+- Standard workers MUST wear WHITE hard hats.
+- Supervisors MUST wear GREEN hard hats (never blue or white). 
+- NO blue hard hats allowed anywhere in the image.
+- NO white boots allowed; boots must be solid black rubber.
+- NO bare hands allowed; always blue nitrile gloves.
+- Same worker must appear in all panels
+- Consistent proportions and appearance
+- Supervisor appears only where required
+
+FOOD SAFETY & PRODUCT FLOW RULES (STRICT):
+- NO EXPOSED PRODUCT DURING WASHDOWN: If a panel depicts sanitation, washdown, or spraying water, the conveyors and equipment MUST be completely empty. NO food product visible on the belts during cleaning.
+- LOGICAL PRODUCT FLOW: Product on conveyors must be arranged in orderly lines or consistent patterns, not chaotic piles (unless explicitly illustrating a "jam"). 
+- NO CROSS-CONTAMINATION: Water must not spray onto exposed food. 
+
+ENVIRONMENT GROUNDING (FROM FACILITY PDF — STRICT):
+
+Floor:
+- Type: epoxy
+- Color: reddish-brown
+- Condition: wet, reflective, scuffed
+- Markings: yellow safety lines, lane boundaries
+
+Walls:
+- Structure: white tile, metal panel seams, corrugated silver
+- Features: grout lines, mounted fixtures
+
+Ceiling:
+- Elements: exposed piping, conduit, cable trays
+
+Equipment:
+- Density: high
+- Types: conveyors, packaging machines, control panels, Mettler Toledo metal detectors, stainless tanks
+- Layout: interconnected continuous systems
+
+Spatial:
+- Layout: tight
+- Depth: layered foreground + background machinery
+- Visibility: partially obstructed
+
+Lighting:
+- Type: industrial overhead
+- Tone: cool
+- Brightness: high
+
+CRITICAL:
+These environment constraints are mandatory.
+Do not simplify, generalize, or remove details.
+
+VISUAL NARRATIVES (DETAILED MECHANICS):
+Subject & Medium
+A landscape workplace safety poster (16:9 aspect ratio). Style: Hand-drawn corporate safety illustration with soft watercolor/airbrush shading and clean, continuous comic-style ink outlines. Aesthetic: Slightly vintage industrial training manual, semi-realistic but extremely clear. Background: Off-white/cream paper texture with a faint vintage vignette.
+
+CRITICAL CONVEYOR & MACHINERY RULES:
+- Conveyor lines and production machines MUST be mechanically logical. 
+- You MUST NOT draw conveyor belts or pipes that suddenly cut off, float in mid-air, or start/end nowhere.
+- Conveyors must continuously extend off-screen or clearly connect to the next stage of machinery. All equipment must look physically grounded and complete.
+
+CRITICAL CONTINUITY & CAMERA RULES:
+- The structural background (machinery layout, tanks, pillars, drains) and character designs MUST remain highly consistent across all three panels. It is the exact same physical location.
+- However, DO NOT lock the viewer into a single static security-camera perspective. You must vary the camera angle or framing between panels (e.g., wide shot, closer medium angle, slightly different perspective) to create a dynamic, engaging comic-book narrative flow without breaking the architectural continuity.
+
+Header (The ONLY Text Allowed)
+Alignment: Centered at the very top. Font: Huge, bold, condensed sans-serif.
+Text Line 1 (Black, Largest): LOTO - JAMMED CONVEYOR
+Text Line 2 (Black, 40% size of header, directly below, crisp and sharp with NO double-printing): LOTO - CONVOYEUR BLOQUÉ / LOTO - CONVEYÈ BLOKE
+
+No Other Text
+There is absolutely no other readable text, labels, titles, speech bubbles, or timestamps anywhere in the image. The panels themselves must be strictly visual. DO NOT generate text labels like "LEFT PANEL" or "RIGHT PANEL" anywhere in the image.
+
+Panel Layout & Status Icons
+Three equal-width rounded rectangular panels arranged Left / Center / Right.
+Left Panel: MUST feature a large RED CIRCULAR "X" MARK positioned perfectly centered at the very bottom of the panel. NO bottom text labels. NO arrows.
+Center Panel: MUST feature a large GREEN CIRCULAR CHECK MARK positioned perfectly centered at the very bottom of the panel. NO bottom text labels. NO arrows.
+Right Panel: MUST feature a large GREEN CIRCULAR CHECK MARK positioned perfectly centered at the very bottom of the panel. NO bottom text labels. NO arrows.
+
+Environment (Strictly Consistent)
+Camera Angle: Wide perspective angle varying from mid-level to slightly closer to emphasize actions.
+The Subject/Machine: A robust, continuous stainless steel conveyor belt system jammed with wrapped packages, positioned near a structural pillar holding a prominent yellow-and-red electrical disconnect switch box.
+The Floor: Smooth, reflective terracotta-colored epoxy resin with visible stainless steel floor drains.
+Background: High-density stainless steel interconnected machinery, large mixing hoppers, and clean white tiled walls extending into the background depth.
+
+PPE Standards (Strict Adherence Required)
+Hard Hats: White (Production Worker), Green (Supervisor).
+Clear Safety Glasses, Solid Black Rubber Boots, Blue Nitrile Gloves, White Coveralls.
+PROHIBITED: NO APRONS of any kind (specifically NO yellow aprons). NO bare hands.
+CRITICAL BALACLAVA: All workers MUST wear a white polypropylene balaclava/hairnet covering their head, hair, and beard. Form: A thin, semi-transparent woven mesh material where the outline of the hair and face underneath is faintly visible. NOT a solid white sheet or astronaut helmet.
+
+Visual Narratives (Detailed Mechanics)
+Absolutely NO ARROWS allowed anywhere in the illustration. Do NOT add diagram arrows, curved arrows, or floor arrows.
+
+LEFT PANEL: PHASE 1 - THE VIOLATION / THE HAZARD
+Motion Physics: Subtle vibration lines around the conveyor motor indicating the machine is still powered on.
+Primary Action/Error: The white-hat worker is dangerously reaching his blue-gloved hands directly into a tight pile of jammed packages on the live conveyor belt, attempting to forcefully rip them free.
+Secondary Character: None in this panel.
+
+CENTER PANEL: PHASE 2 - THE INTERVENTION / THE INSTRUCTION
+Primary Action: The green-hat supervisor urgently steps forward, raising one flat palm to immediately halt the worker.
+Gesture: The supervisor uses his other hand to point firmly directly at the yellow-and-red electrical disconnect switch box mounted on the pillar.
+Subject Reaction: The worker abruptly pulls his hands away from the live belt, turning his head to look at the electrical switch box.
+
+RIGHT PANEL: PHASE 3 - THE CORRECT TECHNIQUE / COMPLIANCE
+Motion Physics: The conveyor is completely still, with no vibration lines present.
+Primary Mechanics: The worker is explicitly shown securely fastening a red safety padlock and danger tag directly through the lever of the disconnect switch box, strictly locking it in the 'OFF' position.
+Secondary Character: The green-hat supervisor stands closely behind, observing the correct LOTO procedure and giving a clear thumbs up.

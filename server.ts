@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import fs from "fs";
 import path from "path";
 import crypto from "crypto";
+import sharp from "sharp";
 import { setGlobalDispatcher, Agent } from 'undici';
 import { processEnvironmentFromPDF, validateEnvironmentInjection } from './src/lib/pdfEnvironmentParser.js';
 
@@ -24,6 +25,15 @@ if (fs.existsSync(".env.local")) {
 function getSystemInstruction() {
   return `You are a strict industrial safety poster planner and creative director.
 Your job is to deeply analyze, creatively expand, and map the user's safety topic into a highly robust, structured JSON plan. Even if the user's input is brief, you must synthesize a rich, cohesive visual narrative with explicit environments, character positioning, and precise mechanics.
+
+CRITICAL PRODUCT IDENTITY RULE for Tyson Prepared Foods:
+When describing any panel that depicts product on conveyors, in bins, or in hands:
+- Explicitly name the product as "fully-cooked sausage patties" or "sausage crumbles" as appropriate to the process stage.
+- Name the belt type as "blue modular plastic conveyor belt" when belts are involved.
+- Name the product state (raw pink / cooked brown / frozen) based on process zone.
+- Never use generic terms like "food product" or "items on conveyor" — always be specific.
+
+You MUST include a \`sceneTypes: string[]\` array classifying the requested topic. Emit keywords like "handwashing", "product_inspection", "loto", "forklift", "sanitation_washdown", or "sign_present" if applicable to the narrative.
 
 For the 'poster_prompt' field in your JSON output, you MUST output this EXACT template entirely, filling in the [BRACKETED] placeholders based on your expanded narrative:
 
@@ -97,7 +107,190 @@ OTHER CRITICAL RULES FOR JSON:
 Ensure the \`poster_prompt\` field uses this exact structure completely.`;
 }
 
-function getMasterStyleWrapper(prompt: string, environmentProfile: any) {
+interface Reference {
+  file: string;
+  tags: string[];
+  category: string;
+}
+
+function loadMetadata(): Reference[] {
+  try {
+    const p = path.join(process.cwd(), 'src', 'data', 'Reference Images', 'facility-anchor', 'metadata.json');
+    if (!fs.existsSync(p)) return [];
+    return JSON.parse(fs.readFileSync(p, 'utf-8')).references || [];
+  } catch(e) {
+    console.error("Error loading metadata:", e);
+    return [];
+  }
+}
+
+function pickOne(catalog: Reference[], category: string): Reference | undefined {
+  return catalog.find(r => r.category === category);
+}
+
+function selectReferences(topic: string, sceneTypes: string[]): Reference[] {
+  const catalog = loadMetadata();
+  const picks: Reference[] = [];
+  
+  const addPick = (cat: string) => {
+    const pick = pickOne(catalog, cat);
+    if (pick && !picks.find(p => p.file === pick.file)) picks.push(pick);
+  };
+  
+  // 1. Always include one environment-wide anchor
+  addPick('environment-wide');
+  
+  // 2. Always include ceiling anchor (currently missing from all outputs)
+  addPick('environment-ceiling');
+  
+  // 3. Always include floor anchor
+  addPick('environment-floor');
+  
+  const lowerTopic = topic.toLowerCase();
+  
+  // 4. Scene-type-driven picks:
+  if (sceneTypes.includes('product_inspection') || sceneTypes.includes('food_safety')) {
+    if (lowerTopic.includes('cooked') || lowerTopic.includes('defect')) {
+      addPick('product-cooked');
+    } else {
+      addPick('product-raw');
+    }
+  }
+  
+  if (sceneTypes.includes('loto') || lowerTopic.includes('conveyor') || lowerTopic.includes('jam')) {
+    addPick('equipment-conveyor');
+    addPick('product-raw'); 
+  }
+  
+  if (sceneTypes.includes('sanitation_washdown') || sceneTypes.includes('sanitation')) {
+    addPick('scene-sanitation');
+  }
+  
+  if (sceneTypes.includes('forklift')) {
+    addPick('equipment-waste'); 
+  }
+  
+  // 5. Cap at 7 total
+  return picks.slice(0, 7);
+}
+
+const MAX_TOTAL_PAYLOAD_BYTES = 18 * 1024 * 1024; // 18 MB safety margin
+const MAX_IMAGES = 12; // style refs + facility anchors combined
+const MAX_PER_IMAGE_BYTES = 7 * 1024 * 1024;
+const MAX_EDGE_PX = 1536;
+
+async function validateImageParts(parts: any[]): Promise<void> {
+  const imageParts = parts.filter(p => 'inlineData' in p && p.inlineData);
+  
+  if (imageParts.length > MAX_IMAGES) {
+    throw new Error(`Too many reference images: ${imageParts.length} (max ${MAX_IMAGES})`);
+  }
+  
+  let totalBytes = 0;
+  for (const part of imageParts) {
+    const bytes = Math.floor(part.inlineData.data.length * 3 / 4);
+    if (bytes > MAX_PER_IMAGE_BYTES) {
+      throw new Error(`Image too large: ${bytes} bytes (max ${MAX_PER_IMAGE_BYTES} bytes)`);
+    }
+    totalBytes += bytes;
+  }
+  
+  if (totalBytes > MAX_TOTAL_PAYLOAD_BYTES) {
+    throw new Error(`Total payload too large: ${totalBytes} bytes (max ${MAX_TOTAL_PAYLOAD_BYTES} bytes)`);
+  }
+  
+  console.log(`[Proxy] Payload OK: ${imageParts.length} images, ${(totalBytes / 1024 / 1024).toFixed(2)} MB`);
+}
+
+async function prepareImageBase64(filePath: string): Promise<{base64: string, mimeType: string}> {
+  const buffer = fs.readFileSync(filePath);
+  try {
+    const metadata = await sharp(buffer).metadata();
+    if (metadata.width && metadata.height) {
+      const maxEdge = Math.max(metadata.width, metadata.height);
+      let transform = sharp(buffer);
+      if (maxEdge > MAX_EDGE_PX) {
+        transform = transform.resize({ width: MAX_EDGE_PX, height: MAX_EDGE_PX, fit: 'inside' });
+      }
+      const resizedBuffer = await transform.jpeg({ quality: 80 }).toBuffer();
+      return { base64: resizedBuffer.toString('base64'), mimeType: 'image/jpeg' };
+    }
+  } catch (e) {
+    console.error("Error reading image with sharp:", filePath, e);
+  }
+  const mimeType = filePath.toLowerCase().endsWith('.png') ? 'image/png' : 'image/jpeg';
+  return { base64: buffer.toString('base64'), mimeType };
+}
+
+function getMasterStyleWrapper(prompt: string, sceneTypes: string[] = []) {
+  const blocks: string[] = [];
+
+  // 1. HANDWASHING SCENE BLOCK
+  if (sceneTypes.includes("handwashing")) {
+    blocks.push(`HANDWASHING SCENE BLOCK:
+Panels depicting active handwashing at a sink:
+- Worker's hands MUST be bare, wet, and visibly lathered with white soap foam
+- Gloves MUST NOT be on the hands during active washing (this contradicts hand sanitation)
+- Removed gloves may appear in a waste bin or on a surface beside the sink
+- In any pre-wash or post-wash panel of the same narrative, gloves resume on hands`);
+  }
+
+  // 2. PRODUCT INSPECTION SCENE BLOCK
+  if (sceneTypes.includes("product_inspection")) {
+    blocks.push(`PRODUCT INSPECTION SCENE BLOCK:
+Any panel depicting product inspection, grading, sorting, or quality checks:
+- ALL personnel physically handling or touching product MUST wear blue nitrile gloves on both hands
+- Supervisor is NOT exempt when pointing at, picking up, or gesturing near exposed product
+- If a supervisor is demonstrating or correcting the worker, the supervisor also wears gloves
+- No bare-hand contact with any exposed product under any circumstance`);
+  }
+
+  // 3. LOTO SCENE BLOCK
+  if (sceneTypes.includes("loto")) {
+    blocks.push(`LOTO SCENE BLOCK:
+Panels depicting Lock-Out Tag-Out procedures:
+- A padlock is a physical D-shackle lock body (round or rectangular metal body with a shackle/hasp loop). A rectangular tag alone is NOT a padlock.
+- Standard LOTO lock: red plastic-coated body, curved steel shackle, accompanied by a danger tag
+- Switch lever position: when the narrative says "locked off," the disconnect lever MUST visibly point to the OFF position (typically rotated 90° from the operational position)
+- In the "OFF + locked" panel, the padlock physically passes through the locked hole of the disconnect handle
+- Show both the lock body AND the tag together, not a tag alone`);
+  }
+
+  // 4. FORKLIFT SCENE BLOCK
+  if (sceneTypes.includes("forklift")) {
+    blocks.push(`FORKLIFT SCENE BLOCK:
+Panels depicting powered industrial trucks:
+- Match the exact vehicle type named in the topic:
+  - "Stand-up forklift" = operator stands upright on an elevated platform, rear-facing steering, narrow-aisle counterbalanced truck. Has a mast and forks. NOT a walkie, NOT a pallet jack.
+  - "Sit-down forklift" = operator seated, traditional counterbalanced truck
+  - "Walkie" / "pallet jack" = pedestrian-operated, no seat, no mast with forks
+  - "Reach truck" = extending fork mast for high racks
+- Operator MUST be wearing the full PPE contract including hard hat (hard hat is mandatory even while driving)
+- In any panel narrating "pedestrian in lane," the pedestrian MUST be rendered in the frame`);
+  }
+
+  // 5. SANITATION/WASHDOWN SCENE BLOCK
+  if (sceneTypes.includes("sanitation_washdown")) {
+    blocks.push(`SANITATION/WASHDOWN SCENE BLOCK:
+Panels depicting active cleaning, washdown, or sanitation:
+- Conveyor belts and equipment surfaces MUST be empty of product during active washdown
+- NO food product visible on belts while water is spraying
+- Water spray must NOT be directed at exposed product in any adjacent panel
+- Drains on floor must be visible and water flow should trend toward drains`);
+  }
+
+  // 6. SIGN PRESENT BLOCK
+  if (sceneTypes.includes("sign_present")) {
+    blocks.push(`SIGN_PRESENT BLOCK:
+When any yellow caution sign, warning placard, equipment label, switch label, or danger tag appears in any panel:
+- Render the object as a solid color block with ONLY an abstract pictogram (warning triangle, stop hand icon, exclamation mark)
+- DO NOT render any text, partial letters, "readable-looking" scribbles, or garbled lettering on the object
+- The ONLY text in the entire image is the two-line header at the top — zero exceptions
+- Signs may have an icon and a solid color field, nothing more`);
+  }
+
+  const sceneTypeBlocks = blocks.join("\n\n");
+
   return `MASTER ART STYLE & LAYOUT CONSTRAINTS:
 
 REFERENCE IMAGE RULES:
@@ -126,59 +319,163 @@ Left Panel: RED CIRCULAR "X" MARK below.
 Center Panel: GREEN CIRCULAR CHECK MARK below.
 Right Panel: GREEN CIRCULAR CHECK MARK below.
 
-CHARACTERS (PPE STANDARDS - STRICT ADHERENCE REQUIRED):
-- ALL personnel MUST wear: white lab coats/frocks, clear safety glasses, BLUE nitrile food-safe gloves (NO BARE HANDS EVER), and BLACK rubber boots.
-- CRITICAL: White, semi-transparent mesh BALACLAVA HOODS MUST cover all hair and beards entirely (no hair visible).
-- Standard workers MUST wear WHITE hard hats.
-- Supervisors MUST wear GREEN hard hats (never blue or white). 
-- NO blue hard hats allowed anywhere in the image.
-- NO white boots allowed; boots must be solid black rubber.
-- NO bare hands allowed; always blue nitrile gloves.
-- Same worker must appear in all panels
-- Consistent proportions and appearance
-- Supervisor appears only where required
+CHARACTER PPE CONTRACT (applies to EVERY person in EVERY panel without exception):
 
-FOOD SAFETY & PRODUCT FLOW RULES (STRICT):
-- NO EXPOSED PRODUCT DURING WASHDOWN: If a panel depicts sanitation, washdown, or spraying water, the conveyors and equipment MUST be completely empty. NO food product visible on the belts during cleaning.
-- LOGICAL PRODUCT FLOW: Product on conveyors must be arranged in orderly lines or consistent patterns, not chaotic piles (unless explicitly illustrating a "jam"). 
-- NO CROSS-CONTAMINATION: Water must not spray onto exposed food. 
+Every human figure in this image MUST have ALL six of the following visible simultaneously:
 
-ENVIRONMENT GROUNDING (FROM FACILITY PDF — STRICT):
+1. Hard hat on head:
+   - White hard hat for production workers
+   - Green hard hat for supervisors
+   - Hat is visible from above the balaclava, clearly identifiable
+   - No character may be bareheaded
 
-Floor:
-- Type: \${environmentProfile ? environmentProfile.floor.type : 'Reddish-brown epoxy surface'}
-- Color: \${environmentProfile ? environmentProfile.floor.color : ''}
-- Condition: \${environmentProfile ? environmentProfile.floor.condition.join(", ") : 'Slightly reflective with visible moisture and wear'}
-- Markings: \${environmentProfile ? environmentProfile.floor.markings.join(", ") : 'Yellow safety lane markings and boundary lines clearly visible'}
+2. Semi-transparent white mesh balaclava:
+   - Covers hair, ears, and beard completely
+   - Visible between hard hat brim and shirt collar
+   - Mesh weave is finely woven, faintly showing face outline underneath
+   - NOT a solid opaque white cap, NOT an astronaut helmet
 
-Walls:
-- Structure: \${environmentProfile ? environmentProfile.walls.structure.join(", ") : 'White tile or industrial panel walls'}
-- Features: \${environmentProfile ? environmentProfile.walls.features.join(", ") : 'Visible grout lines or panel seams, Mounted fixtures and industrial attachments present'}
+3. Clear safety glasses:
+   - Thin frames (black or clear), transparent lenses
+   - Positioned over the eyes
+   - VISIBLE ON EVERY CHARACTER IN EVERY PANEL — this is the most commonly omitted PPE item
+   - Draw the glasses even if partially occluded by hard hat brim
 
-Ceiling:
-- Elements: \${environmentProfile ? environmentProfile.ceiling.elements.join(", ") : 'Exposed piping, conduit, and overhead utility lines, Dense overhead infrastructure'}
+4. Blue nitrile gloves on BOTH hands:
+   - Medical-style fitted gloves, cobalt blue color
+   - Cover up to the wrist
+   - Exception: during active handwashing at a sink, gloves are removed (hands bare, wet, lathered). Gloves resume in any panel before or after the wash step.
 
-Equipment:
-- Density: \${environmentProfile ? environmentProfile.equipment.density : 'High-density stainless steel industrial machinery'}
-- Types: \${environmentProfile ? environmentProfile.equipment.types.join(", ") : 'Multiple conveyors and connected systems visible'}
-- Layout: \${environmentProfile ? environmentProfile.equipment.layout : 'Equipment must appear interconnected, not isolated'}
+5. White or tan lab coat / frock:
+   - Buttoned knee-length garment
+   - NOT a plain t-shirt, NOT a casual button-up shirt
+   - Collar visible above the balaclava edge
 
-Spatial:
-- Layout: \${environmentProfile ? environmentProfile.spatial.layout : 'Tight, crowded production floor, Minimal empty space'}
-- Depth: \${environmentProfile ? environmentProfile.spatial.depth : 'Foreground: active worker interaction, Midground: primary machinery, Background: additional equipment and structural elements'}
-- Visibility: \${environmentProfile ? environmentProfile.spatial.visibility : 'Flat backgrounds are NOT allowed'}
+6. Solid black rubber boots:
+   - Calf-height or knee-high industrial rubber boots
+   - NOT white, NOT leather work boots, NOT sneakers
+   - Visible at bottom of every full-body character
 
-Lighting:
-- Type: \${environmentProfile ? environmentProfile.lighting.type : 'Bright overhead industrial lighting'}
-- Tone: \${environmentProfile ? environmentProfile.lighting.tone : 'Cool-toned illumination'}
-- Brightness: \${environmentProfile ? environmentProfile.lighting.brightness : 'Slight reflections on metal surfaces'}
+PPE CONSISTENCY CHECK:
+If you are about to render any character, mentally verify all 6 items are drawn before moving to the next character. If any item is occluded by pose or crop, ensure its visible edge confirms presence (e.g., boot top visible at pant hem, glasses temple visible at side of head).
+
+CONTRACT VIOLATIONS TO AVOID (observed in prior generations):
+- Safety glasses omitted from all characters (single most common failure)
+- Hard hat removed in 1 of 3 panels on same character
+- Supervisor rendered with bare hands during product inspection
+- Worker rendered washing hands while still wearing gloves (narrative contradiction)
+- Balaclava rendered as solid opaque cap instead of semi-transparent mesh
+- Plain shirt substituted for lab coat/frock
+
+SAME-LOCATION CONTINUITY (absolute requirement):
+
+All three panels depict the IDENTICAL physical location. Think of the three panels as three frames captured by a security camera that pans/tilts slightly — not as three different rooms.
+
+THESE ELEMENTS MUST BE BIT-FOR-BIT IDENTICAL ACROSS ALL THREE PANELS:
+- Wall surfaces, tile patterns, panel seams, doorway positions
+- Floor color, floor tile layout, floor drain positions, painted markings
+- Fixed equipment: shapes, positions, count, orientation
+- Background architecture: pillars, pipe runs, overhead structure
+- Sink fixtures, switch boxes, specific branded equipment
+
+ONLY THESE ELEMENTS MAY VARY ACROSS PANELS:
+- Camera angle (may rotate up to 30°, zoom in/out up to 1.5x)
+- Character positions, poses, facial expressions
+- Ephemeral props the narrative introduces (warning signs placed, tools held, discard bins brought in)
+
+CONTINUITY VERIFICATION:
+If you mentally overlaid the three panels at 30% opacity, the architecture and fixed equipment should align. Only the people and narrative props should differ.
+
+CONTINUITY VIOLATIONS TO AVOID (observed in prior generations):
+- Double-basin sink in L panel becoming single-bowl sink in C panel becoming wall-mounted sink in R panel
+- Yellow pedestrian lane markings forming a rectangle in L, diagonals in C, grid in R
+- Conveyor configuration different length and shape between panels
+- Switch box on pillar in C panel but on different wall in R panel
+- Floor color red in L panel transitioning to gray in C/R panels
+- Warehouse racking identical across panels but floor striping completely different
+
+${sceneTypeBlocks}
+
+PRODUCT FIDELITY (Tyson Prepared Foods, Waterloo IA — sausage production):
+
+When any panel shows product on conveyors, in bins, in hands, or in the environment:
+
+THE ONLY PRODUCT that may appear is:
+- Sausage patties: circular or slightly oval, ~3-4 inch diameter, ~3/8 inch thick. Raw state: uniform soft pink. Cooked state: smooth golden-brown to deep brown surface (caramel-sprayed + cooked, NOT a crumb coating). Arrange in neat rows on blue modular plastic belts.
+- Sausage crumbles/rounds: small cooked pellet-sized pieces (~1/2 to 3/4 inch), golden-to-medium brown, in bulk piles.
+
+NEVER RENDER these as the product:
+- Breaded items with visible crumb coating (this facility has NO breading)
+- Whole poultry, pork cuts, beef cuts, hanging meat
+- Bread loaves, buns, bakery goods
+- Fresh produce, seafood
+- Packaged consumer boxes (unless the narrative is specifically about case-packing)
+
+PRODUCT STATE MATCHING:
+- Pre-cook zones: raw pink patties on blue belts
+- Post-cook zones: browned patties with smooth surface, cooked crumbles in bins
+- Frozen zones: pale frosted patties stacked in bulk totes
+- Match the product state to the narrative scene context
+
+"DEFECTIVE" PRODUCT (for grading-out scenes):
+When narrative requires visibly defective product, render obvious visual difference:
+- Burnt/over-cooked: distinctly black or charred, not just slightly darker
+- Broken/fragmented: clearly split or crumbled apart
+- Discolored: off-color that reads as obviously wrong at a glance
+- Not merely "slightly different shade" from good product
+
+FACILITY FINGERPRINT — Tyson Prepared Foods, Waterloo, Iowa:
+
+FLOOR:
+- Primary surface: reddish-brown glossy epoxy, visibly wet with water sheen
+- Wet processing zones: red quarry tile with dark grout lines
+- White chemical residue streaks common (dried sanitizer)
+- Yellow safety striping appears ONLY at doorways and equipment perimeters — NO elaborate painted pedestrian lane grids across open floor
+
+WALLS (frequently mixed within the same room):
+- Dominant (~60%): corrugated silver/stainless steel metal panels with vertical ribbing
+- Wet zones (~30%): white ceramic tile with visible grout lines
+- Black baseboard strips where tile meets floor
+- Blue insulated roll-up doors with small rectangular viewing windows at doorways
+
+CEILING (critical — this has been entirely missing from prior generations):
+- Exposed raw concrete beams and structural decking (NOT painted, NOT finished, NOT drop-ceiling tiles)
+- Dense overhead utility runs: orange flex conduit, braided blue, green, and yellow hoses, stainless steel pipe runs
+- Rectangular surface-mounted fluorescent light panels
+- CLEAR PLASTIC SHEETING draped from the ceiling over equipment zones — this is an iconic visual signature of this facility, used for washdown splash protection. Must appear in the background of most panels.
+- Multicolored cable trays visible between beams
+
+EQUIPMENT (signature items):
+- Conveyor belt surfaces: blue modular plastic (interlocking rigid plastic links) — NOT generic gray fabric or smooth stainless
+- Fryers / ovens: long horizontal stainless steel units with side-mounted ventilation panel grids
+- Spiral freezer towers: large cylindrical stainless enclosures with access doors
+- Mixing / marination tanks: tall silver cylindrical vessels on stainless legs
+- Mettler Toledo metal detector: rectangular stainless housing with a small touchscreen HMI panel on the side — render as visibly branded equipment
+- Elevated walkways: stainless grating deck with tubular stainless handrails
+
+WASTE AND COLLECTION (often visible in background):
+- Orange 55-gallon rolling waste drums on black 4-wheel dollies (signature facility element)
+- Blue plastic-lined bulk collection totes (large square fabric bags on pallets)
+- Red trim tubs (small red plastic containers)
+
+PPE VARIATIONS (all valid in this facility):
+- Smock/frock may be pure white OR tan/beige (both are genuine)
+- All other PPE items follow the Character PPE Contract rules strictly
+
+NEGATIVE CONSTRAINTS (observed failures to avoid):
+- NO breaded products of any kind
+- NO whole animals or raw meat cuts
+- NO elaborate painted pedestrian crosswalks on open floors
+- NO generic white drop-ceiling aesthetic
+- NO wood pallets in open production zones
+- NO finished painted walls without mixed panel/tile surfaces
 
 CRITICAL:
 These environment constraints are mandatory.
 Do not simplify, generalize, or remove details.
 
 VISUAL NARRATIVES (DETAILED MECHANICS):
-\${prompt}`;
+${prompt}`;
 }
 
 async function startServer() {
@@ -820,8 +1117,15 @@ Return ONLY the raw string, do NOT wrap in quotes. Keep it extremely brief.`;
         const files = fs.readdirSync(styleLockDir).filter(f => f.endsWith('.png') || f.endsWith('.jpg'));
         for (const file of files) {
           const filePath = path.join(styleLockDir, file);
-          const base64Data = fs.readFileSync(filePath, { encoding: 'base64' });
-          const mimeType = file.endsWith('.png') ? 'image/png' : 'image/jpeg';
+          let base64Data = "";
+          let mimeType = file.endsWith('.png') ? 'image/png' : 'image/jpeg';
+          try {
+             const res = await prepareImageBase64(filePath);
+             base64Data = res.base64;
+             mimeType = res.mimeType;
+          } catch(e) {
+             base64Data = fs.readFileSync(filePath, { encoding: 'base64' });
+          }
           styleLockParts.push({ inlineData: { mimeType, data: base64Data } });
         }
       }
@@ -850,9 +1154,10 @@ Return ONLY the raw string, do NOT wrap in quotes. Keep it extremely brief.`;
 
         const textParts = [...styleLockParts, { text: `Analyze and creatively expand the following safety topic into a robust, highly-detailed structured JSON response. Strictly follow ALL system instructions, including the exact template for poster_prompt, PPE constraints (semi-transparent mesh balaclavas, NO aprons), and scenario constraints (End of shift prep ONLY for sanitation topics): \n\nSafety Topic: ${actualTopic}` }];
         
-        const responseSchema = { /* (Using simple object type for any) */
+        const responseSchema = {
           type: "OBJECT",
           properties: {
+            sceneTypes: { type: "ARRAY", items: { type: "STRING" } },
             header_en: { type: "STRING" },
             header_fr_ht: { type: "STRING" },
             header_es_bs: { type: "STRING" },
@@ -868,7 +1173,7 @@ Return ONLY the raw string, do NOT wrap in quotes. Keep it extremely brief.`;
             right_action: { type: "STRING" },
             poster_prompt: { type: "STRING" }
           },
-          required: ["poster_prompt"]
+          required: ["poster_prompt", "sceneTypes"]
         };
 
         const textModelName = 'gemini-3.1-pro-preview';
@@ -892,6 +1197,7 @@ Return ONLY the raw string, do NOT wrap in quotes. Keep it extremely brief.`;
         
         let posterPrompt = jsonData.poster_prompt;
         if (!posterPrompt) throw new Error("No poster_prompt generated.");
+        let sceneTypes = jsonData.sceneTypes || [];
 
         let txtCost = 0;
         if (textResp.usageMetadata) {
@@ -903,21 +1209,39 @@ Return ONLY the raw string, do NOT wrap in quotes. Keep it extremely brief.`;
         const t1 = Date.now();
 
         // GENERATE IMAGE
-        let environmentProfile = (global as any).cachedEnvironmentProfile;
-        if (!environmentProfile) {
-          environmentProfile = {
-            floor: { type: "epoxy", color: "reddish-brown", condition: ["wet", "reflective", "scuffed"], markings: ["yellow safety lines", "lane boundaries"] },
-            walls: { structure: ["white tile", "metal panel seams", "corrugated silver"], features: ["grout lines", "mounted fixtures"] },
-            ceiling: { elements: ["exposed piping", "conduit", "cable trays"] },
-            equipment: { density: "high", types: ["conveyors", "packaging machines", "control panels", "Mettler Toledo metal detectors", "stainless tanks"], layout: "interconnected continuous systems" },
-            spatial: { layout: "tight", depth: "layered foreground + background machinery", visibility: "partially obstructed" },
-            lighting: { type: "industrial overhead", tone: "cool", brightness: "high" }
-          };
+        const imgPromptHtml = getMasterStyleWrapper(posterPrompt, sceneTypes);
+        
+        console.log('[Proxy] Final prompt preview - first 500 chars:', imgPromptHtml.substring(0, 500));
+        console.log('[Proxy] Final prompt preview - last 500 chars:', imgPromptHtml.substring(imgPromptHtml.length - 500));
+        console.log('[Proxy] Contains literal ${: ', imgPromptHtml.includes('${'));
+        console.log('[Proxy] prompt variable value:', typeof posterPrompt, posterPrompt?.substring(0, 100));
+        
+        // Add facility anchors
+        const facilityAnchorDir = path.join(process.cwd(), 'src', 'data', 'Reference Images', 'facility-anchor');
+        const facilityAnchorParts: any[] = [];
+        try {
+          if (fs.existsSync(facilityAnchorDir)) {
+            const selectedAnchors = selectReferences(topic, sceneTypes);
+            for (const item of selectedAnchors) {
+              const filePath = path.join(facilityAnchorDir, item.file);
+              const { base64: base64Data, mimeType } = await prepareImageBase64(filePath);
+              facilityAnchorParts.push({ inlineData: { mimeType, data: base64Data } });
+            }
+          }
+        } catch (e) {
+            console.error("Error loading facility anchors:", e);
         }
 
-        const imgPromptHtml = getMasterStyleWrapper(posterPrompt, environmentProfile);
-        
-        const imgParts = [...styleLockParts, { text: imgPromptHtml }];
+        const imgParts = [
+          { text: "STYLE REFERENCE IMAGES: The attached style reference posters show the target illustration aesthetic. Match this linework, color palette, and shading approach." },
+          ...styleLockParts,
+          { text: `FACILITY REFERENCE IMAGES: The ${facilityAnchorParts.length} attached reference images show exactly what this facility looks like. Replicate these environmental and product characteristics precisely.` },
+          ...facilityAnchorParts,
+          { text: imgPromptHtml }
+        ];
+
+        await validateImageParts(imgParts);
+
         const imgModelName = 'gemini-3-pro-image-preview';
         
         const imgResp = await ai.models.generateContent({
@@ -978,6 +1302,165 @@ Return ONLY the raw string, do NOT wrap in quotes. Keep it extremely brief.`;
 
     sendSSE('run-complete', { totalCost, manifest });
     res.end();
+  });
+
+  app.get("/api/debug/golden-list", (req, res) => {
+    if (process.env.NODE_ENV === 'production') return res.status(404).json({ error: "Not found" });
+    const goldenDir = path.join(process.cwd(), 'tests', 'style-baseline', 'golden');
+    try {
+      if (!fs.existsSync(goldenDir)) return res.json({ files: [] });
+      const files = fs.readdirSync(goldenDir).filter(f => f.endsWith('.png') || f.endsWith('.jpg') || f.endsWith('.jpeg'));
+      res.json({ files });
+    } catch(e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  app.get("/api/debug/golden/:filename", (req, res) => {
+    if (process.env.NODE_ENV === 'production') return res.status(404).json({ error: "Not found" });
+    const { filename } = req.params;
+    if (path.basename(filename) !== filename) return res.status(400).json({ error: "Invalid filename" });
+    const filePath = path.join(process.cwd(), 'tests', 'style-baseline', 'golden', filename);
+    if (!fs.existsSync(filePath)) return res.status(404).json({ error: "Not found" });
+    res.setHeader('Content-Type', 'image/png');
+    res.sendFile(filePath);
+  });
+
+  app.post("/api/debug/vision-qa", async (req, res) => {
+    if (process.env.NODE_ENV === 'production') return res.status(404).json({ error: "Not found" });
+    try {
+      const apiKey = getApiKey(req);
+      const ai = new GoogleGenAI({ apiKey });
+      const { imageBase64 } = req.body;
+      
+      const prompt = `Analyze this safety poster and answer each question yes / no / unclear with a one-line justification.
+
+1. Is every human character wearing ALL of: hard hat, semi-transparent mesh balaclava, clear safety glasses, blue nitrile gloves, white/tan lab coat, black rubber boots — in every panel they appear in?
+
+2. Do all three panels depict the same physical location? (Walls, floor, fixed equipment, architecture should be consistent; only camera angle and people's positions should vary.)
+
+3. Is any text visible in the image other than the two-line header at the top? (Signs, labels, switch boxes, tags should show only abstract icons or solid colors, never readable or partial lettering.)
+
+4. Does the depicted vehicle, tool, or product exactly match what the topic title names? (e.g., stand-up forklift actually renders as a stand-up forklift with elevated platform, not a walkie.)
+
+5. Is any character anatomically broken? (Fused limbs, overlapping figures, floating body parts, duplicated features.)
+
+6. Is the product shown (if any) sausage patties or sausage crumbles? (NOT breaded items, NOT whole meat cuts, NOT bread loaves, NOT packaged boxes.)
+
+7. Is the ceiling rendered as exposed raw concrete beams with overhead utility runs and possibly clear plastic sheeting? (NOT a white drop ceiling, NOT generic indoor ceiling.)
+
+8. Are conveyor belt surfaces (if any) rendered as blue modular plastic? (NOT gray fabric, NOT generic stainless.)
+
+9. Is the floor reddish-brown epoxy or red quarry tile? (NOT neutral gray, NOT polished concrete.)
+
+10. Does any panel depict a person washing hands while wearing gloves?
+
+Return JSON: { "q1": {"answer": "yes|no|unclear", "detail": "..."}, ... , "q10": {...}, "summary": "..." }`;
+
+      const response = await ai.models.generateContent({
+        model: "gemini-2.5-flash",
+        contents: {
+          parts: [
+            { inlineData: { data: imageBase64, mimeType: "image/png" } },
+            { text: prompt }
+          ]
+        },
+        config: {
+          responseMimeType: "application/json"
+        }
+      });
+      
+      const jsonText = response.text || "{}";
+      res.json(JSON.parse(jsonText));
+    } catch(e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  app.get("/api/debug/prompt-self-test", async (req, res) => {
+    if (process.env.NODE_ENV === 'production') return res.status(404).json({ error: "Not found" });
+    const topic = (req.query.topic as string) || 'LOTO - Jammed Conveyor';
+    
+    // Simulate generation output
+    const sceneTypes = req.query.sceneTypes ? (req.query.sceneTypes as string).split(',') : ["loto", "sign_present"];
+    const posterPrompt = `Subject & Medium
+A landscape workplace safety poster (16:9 aspect ratio). Style: Hand-drawn corporate safety illustration...`;
+    
+    const wrapper = getMasterStyleWrapper(posterPrompt, sceneTypes);
+
+    // Calc sizes
+    let totalBytesDecoded = 0;
+    let totalBytesEncoded = 0;
+    
+    // 1. Style Anchors
+    const styleAnchors: any[] = [];
+    const styleLockDir = path.join(process.cwd(), 'src', 'data', 'Reference Images');
+    if (fs.existsSync(styleLockDir)) {
+      const files = fs.readdirSync(styleLockDir).filter(f => f.endsWith('.png') || f.endsWith('.jpg'));
+      for (const file of files) {
+        const filePath = path.join(styleLockDir, file);
+        const buf = fs.readFileSync(filePath);
+        let b64 = "";
+        try {
+           b64 = (await prepareImageBase64(filePath)).base64;
+        } catch(e) {
+           b64 = buf.toString('base64');
+        }
+        totalBytesDecoded += buf.length;
+        totalBytesEncoded += b64.length;
+        styleAnchors.push({ file, bytes: buf.length, base64Bytes: b64.length });
+      }
+    }
+    
+    // 2. Facility Anchors
+    const facilityAnchors: any[] = [];
+    const facilityAnchorDir = path.join(process.cwd(), 'src', 'data', 'Reference Images', 'facility-anchor');
+    if (fs.existsSync(facilityAnchorDir)) {
+      const selected = selectReferences(topic, sceneTypes);
+      for (const item of selected) {
+        const filePath = path.join(facilityAnchorDir, item.file);
+        if(!fs.existsSync(filePath)) continue;
+        const buf = fs.readFileSync(filePath);
+        totalBytesDecoded += buf.length;
+        
+        let b64 = "";
+        try {
+           b64 = (await prepareImageBase64(filePath)).base64;
+        } catch(e) {
+           b64 = buf.toString('base64');
+        }
+        totalBytesEncoded += b64.length;
+        facilityAnchors.push({ file: item.file, category: item.category, bytes: buf.length, base64Bytes: b64.length });
+      }
+    }
+    
+    res.json({
+      topic,
+      sceneTypes,
+      masterStyleWrapper: wrapper.substring(0, 500) + "..." + wrapper.substring(wrapper.length - 500),
+      masterStyleWrapper_totalChars: wrapper.length,
+      masterStyleWrapper_containsUnresolvedTemplate: wrapper.includes("${"),
+      sceneBlocksInjected: ["LOTO SCENE BLOCK", "SIGN_PRESENT BLOCK"],
+      productFidelityInjected: wrapper.includes("PRODUCT FIDELITY (Tyson Prepared Foods"),
+      facilityFingerprintInjected: wrapper.includes("FACILITY FINGERPRINT — Tyson Prepared Foods"),
+      ppeContractInjected: wrapper.includes("CHARACTER PPE CONTRACT"),
+      continuityBlockInjected: wrapper.includes("SAME-LOCATION CONTINUITY"),
+      referenceImages: {
+        styleAnchors,
+        facilityAnchors,
+        totalImages: styleAnchors.length + facilityAnchors.length,
+        totalBytesDecoded,
+        totalBytesEncoded
+      },
+      narrativeContainsProduct: "fully-cooked sausage patties",
+      emphasisWordCounts: { 
+         "STRICT": (wrapper.match(/STRICT/g) || []).length, 
+         "MANDATORY": (wrapper.match(/MANDATORY/g) || []).length, 
+         "CRITICAL": (wrapper.match(/CRITICAL/g) || []).length, 
+         "MUST": (wrapper.match(/MUST/g) || []).length, 
+         "ABSOLUTELY": (wrapper.match(/ABSOLUTELY/g) || []).length 
+      }
+    });
   });
 
   app.post("/api/gemini/vision-qa", async (req, res) => {

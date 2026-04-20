@@ -1,0 +1,81 @@
+MASTER ART STYLE & LAYOUT CONSTRAINTS:
+
+REFERENCE IMAGE RULES:
+- The PDF images define the physical environment exactly
+- The generated scene MUST replicate these environmental characteristics
+- DO NOT simplify, generalize, or omit environmental details
+- DO NOT create empty or minimal backgrounds
+- DO NOT substitute generic factory visuals
+
+SUBJECT & MEDIUM:
+A landscape workplace safety poster (16:9 aspect ratio).
+Style: Hand-drawn corporate safety illustration with soft watercolor/airbrush shading and clean comic-style ink outlines. NO rough pencil lines or scratchy crosshatching.
+Aesthetic: Slightly vintage industrial training manual, semi-realistic but clear.
+Background (Outside the panels): Off-white/cream paper texture with a faint vintage vignette.
+
+HEADER (The ONLY Text Allowed):
+Alignment: Centered at the very top.
+Font: Huge, bold, condensed sans-serif.
+Text Line 1 (Black, Largest) and Text Line 2 (Black, 40% size of header, directly below).
+No Other Text: There is absolutely no other readable text, labels, titles, speech bubbles, or timestamps anywhere in the image except the exact headers provided.
+
+PANEL LAYOUT & STATUS ICONS:
+Three equal-width rounded rectangular panels arranged Left / Center / Right.
+Thin black outline borders around each panel (NO thick blue borders).
+Left Panel: RED CIRCULAR "X" MARK below.
+Center Panel: GREEN CIRCULAR CHECK MARK below.
+Right Panel: GREEN CIRCULAR CHECK MARK below.
+
+CHARACTERS (PPE STANDARDS - STRICT ADHERENCE REQUIRED):
+- ALL personnel MUST wear: white lab coats/frocks, clear safety glasses, BLUE nitrile food-safe gloves (NO BARE HANDS EVER), and BLACK rubber boots.
+- CRITICAL: White, semi-transparent mesh BALACLAVA HOODS MUST cover all hair and beards entirely (no hair visible).
+- Standard workers MUST wear WHITE hard hats.
+- Supervisors MUST wear GREEN hard hats (never blue or white). 
+- NO blue hard hats allowed anywhere in the image.
+- NO white boots allowed; boots must be solid black rubber.
+- NO bare hands allowed; always blue nitrile gloves.
+- Same worker must appear in all panels
+- Consistent proportions and appearance
+- Supervisor appears only where required
+
+FOOD SAFETY & PRODUCT FLOW RULES (STRICT):
+- NO EXPOSED PRODUCT DURING WASHDOWN: If a panel depicts sanitation, washdown, or spraying water, the conveyors and equipment MUST be completely empty. NO food product visible on the belts during cleaning.
+- LOGICAL PRODUCT FLOW: Product on conveyors must be arranged in orderly lines or consistent patterns, not chaotic piles (unless explicitly illustrating a "jam"). 
+- NO CROSS-CONTAMINATION: Water must not spray onto exposed food. 
+
+ENVIRONMENT GROUNDING (FROM FACILITY PDF — STRICT):
+
+Floor:
+- Type: epoxy
+- Color: reddish-brown
+- Condition: wet, reflective, scuffed
+- Markings: yellow safety lines, lane boundaries
+
+Walls:
+- Structure: white tile, metal panel seams, corrugated silver
+- Features: grout lines, mounted fixtures
+
+Ceiling:
+- Elements: exposed piping, conduit, cable trays
+
+Equipment:
+- Density: high
+- Types: conveyors, packaging machines, control panels, Mettler Toledo metal detectors, stainless tanks
+- Layout: interconnected continuous systems
+
+Spatial:
+- Layout: tight
+- Depth: layered foreground + background machinery
+- Visibility: partially obstructed
+
+Lighting:
+- Type: industrial overhead
+- Tone: cool
+- Brightness: high
+
+CRITICAL:
+These environment constraints are mandatory.
+Do not simplify, generalize, or remove details.
+
+VISUAL NARRATIVES (DETAILED MECHANICS):
+Subject & Medium A landscape workplace safety poster (16:9 aspect ratio). Style: Hand-drawn corporate safety illustration with soft watercolor/airbrush shading and clean, continuous comic-style ink outlines. Aesthetic: Slightly vintage industrial training manual, semi-realistic but extremely clear. Background: Off-white/cream paper texture with a faint vintage vignette. CRITICAL CONVEYOR & MACHINERY RULES: - Conveyor lines and production machines MUST be mechanically logical. - You MUST NOT draw conveyor belts or pipes that suddenly cut off, float in mid-air, or start/end nowhere. - Conveyors must continuously extend off-screen or clearly connect to the next stage of machinery. All equipment must look physically grounded and complete. CRITICAL CONTINUITY & CAMERA RULES: - The structural background (machinery layout, tanks, pillars, drains) and character designs MUST remain highly consistent across all three panels. It is the exact same physical location. - However, DO NOT lock the viewer into a single static security-camera perspective. You must vary the camera angle or framing between panels (e.g., wide shot, closer medium angle, slightly different perspective) to create a dynamic, engaging comic-book narrative flow without breaking the architectural continuity. Header (The ONLY Text Allowed) Alignment: Centered at the very top. Font: Huge, bold, condensed sans-serif. Text Line 1 (Black, Largest): PREVENT SLIPS AND FALLS - CLEAN WET FLOORS Text Line 2 (Black, 40% size of header, directly below, crisp and sharp with NO double-printing): PRÉVENEZ LES GLISSADES - NETTOYEZ LES PLANCHERS MOUILLÉS / ANPECHE GLISE - NETWAYE ATÈ KI MOUIYE No Other Text There is absolutely no other readable text, labels, titles, speech bubbles, or timestamps anywhere in the image. The panels themselves must be strictly visual. DO NOT generate text labels like "LEFT PANEL" or "RIGHT PANEL" anywhere in the image. Panel Layout & Status Icons Three equal-width rounded rectangular panels arranged Left / Center / Right. Left Panel: MUST feature a large RED CIRCULAR "X" MARK positioned perfectly centered at the very bottom of the panel. NO bottom text labels. NO arrows. Center Panel: MUST feature a large GREEN CIRCULAR CHECK MARK positioned perfectly centered at the very bottom of the panel. NO bottom text labels. NO arrows. Right Panel: MUST feature a large GREEN CIRCULAR CHECK MARK positioned perfectly centered at the very bottom of the panel. NO bottom text labels. NO arrows. Environment (Strictly Consistent) Camera Angle: Medium-wide shot varying slightly across panels (straight-on, slight left, slight right). The Subject/Machine: Industrial walkway between two large stainless steel mixing tanks with a visible square floor drain in the center. The Floor: Smooth, glossy gray industrial epoxy floor with a large puddle of water. Background: Off-white tiled walls with industrial stainless steel piping and conduits extending seamlessly off-screen. PPE Standards (Strict Adherence Required) Hard Hats: White (Worker), Green (Supervisor). Clear Safety Glasses, Solid Black Rubber Boots, Blue Nitrile Gloves, white button-up collared uniform shirts, white uniform trousers. PROHIBITED: NO APRONS of any kind (specifically NO yellow aprons). NO bare hands. CRITICAL BALACLAVA: All workers MUST wear a white polypropylene balaclava/hairnet covering their head, hair, and beard. Form: A thin, semi-transparent woven mesh material where the outline of the hair and face underneath is faintly visible. NOT a solid white sheet or astronaut helmet. Scenario Constraints (Pre-Sanitation Only) Workers MUST NOT be actively spraying water, holding running hoses, or actively scrubbing. Instead, the actions must depict PREPARATION: gathering tools to clear a puddle before an incident. Visual Narratives (Detailed Mechanics) Absolutely NO ARROWS allowed anywhere in the illustration. Do NOT add diagram arrows, curved arrows, or floor arrows. LEFT PANEL: PHASE 1 - THE VIOLATION / THE HAZARD Motion Physics: Sharp diagonal action lines indicating a sudden slip and loss of balance, but NO ARROWS. Primary Action/Error: A worker in a white hard hat carelessly steps directly into a massive puddle, one foot sliding out forward, arms flailing outward to catch balance. Secondary Character: Supervisor in a green hard hat stands in the background, reaching out in shock. CENTER PANEL: PHASE 2 - THE INTERVENTION / THE INSTRUCTION Primary Action: Supervisor places a bright yellow A-frame warning sign next to the puddle and holds out an industrial long-handled squeegee. Gesture: Supervisor hands the squeegee to the worker while clearly pointing at the floor drain nearby without drawing literal arrows. Subject Reaction: Worker stands safely at the edge of the puddle, reaching out to take the squeegee. RIGHT PANEL: PHASE 3 - THE CORRECT TECHNIQUE / COMPLIANCE Motion Physics: Gentle sweep lines near the floor showing the pushing motion, NO ARROWS. Primary Mechanics: Worker safely and carefully pushes the water directly into the stainless steel floor drain using the long squeegee. The yellow warning sign is fully deployed next to them on the dry floor. Secondary Character: Supervisor stands safely to the side, giving a clear thumbs up.

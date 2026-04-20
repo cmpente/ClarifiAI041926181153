@@ -1,0 +1,81 @@
+MASTER ART STYLE & LAYOUT CONSTRAINTS:
+
+REFERENCE IMAGE RULES:
+- The PDF images define the physical environment exactly
+- The generated scene MUST replicate these environmental characteristics
+- DO NOT simplify, generalize, or omit environmental details
+- DO NOT create empty or minimal backgrounds
+- DO NOT substitute generic factory visuals
+
+SUBJECT & MEDIUM:
+A landscape workplace safety poster (16:9 aspect ratio).
+Style: Hand-drawn corporate safety illustration with soft watercolor/airbrush shading and clean comic-style ink outlines. NO rough pencil lines or scratchy crosshatching.
+Aesthetic: Slightly vintage industrial training manual, semi-realistic but clear.
+Background (Outside the panels): Off-white/cream paper texture with a faint vintage vignette.
+
+HEADER (The ONLY Text Allowed):
+Alignment: Centered at the very top.
+Font: Huge, bold, condensed sans-serif.
+Text Line 1 (Black, Largest) and Text Line 2 (Black, 40% size of header, directly below).
+No Other Text: There is absolutely no other readable text, labels, titles, speech bubbles, or timestamps anywhere in the image except the exact headers provided.
+
+PANEL LAYOUT & STATUS ICONS:
+Three equal-width rounded rectangular panels arranged Left / Center / Right.
+Thin black outline borders around each panel (NO thick blue borders).
+Left Panel: RED CIRCULAR "X" MARK below.
+Center Panel: GREEN CIRCULAR CHECK MARK below.
+Right Panel: GREEN CIRCULAR CHECK MARK below.
+
+CHARACTERS (PPE STANDARDS - STRICT ADHERENCE REQUIRED):
+- ALL personnel MUST wear: white lab coats/frocks, clear safety glasses, BLUE nitrile food-safe gloves (NO BARE HANDS EVER), and BLACK rubber boots.
+- CRITICAL: White, semi-transparent mesh BALACLAVA HOODS MUST cover all hair and beards entirely (no hair visible).
+- Standard workers MUST wear WHITE hard hats.
+- Supervisors MUST wear GREEN hard hats (never blue or white). 
+- NO blue hard hats allowed anywhere in the image.
+- NO white boots allowed; boots must be solid black rubber.
+- NO bare hands allowed; always blue nitrile gloves.
+- Same worker must appear in all panels
+- Consistent proportions and appearance
+- Supervisor appears only where required
+
+FOOD SAFETY & PRODUCT FLOW RULES (STRICT):
+- NO EXPOSED PRODUCT DURING WASHDOWN: If a panel depicts sanitation, washdown, or spraying water, the conveyors and equipment MUST be completely empty. NO food product visible on the belts during cleaning.
+- LOGICAL PRODUCT FLOW: Product on conveyors must be arranged in orderly lines or consistent patterns, not chaotic piles (unless explicitly illustrating a "jam"). 
+- NO CROSS-CONTAMINATION: Water must not spray onto exposed food. 
+
+ENVIRONMENT GROUNDING (FROM FACILITY PDF — STRICT):
+
+Floor:
+- Type: epoxy
+- Color: reddish-brown
+- Condition: wet, reflective, scuffed
+- Markings: yellow safety lines, lane boundaries
+
+Walls:
+- Structure: white tile, metal panel seams, corrugated silver
+- Features: grout lines, mounted fixtures
+
+Ceiling:
+- Elements: exposed piping, conduit, cable trays
+
+Equipment:
+- Density: high
+- Types: conveyors, packaging machines, control panels, Mettler Toledo metal detectors, stainless tanks
+- Layout: interconnected continuous systems
+
+Spatial:
+- Layout: tight
+- Depth: layered foreground + background machinery
+- Visibility: partially obstructed
+
+Lighting:
+- Type: industrial overhead
+- Tone: cool
+- Brightness: high
+
+CRITICAL:
+These environment constraints are mandatory.
+Do not simplify, generalize, or remove details.
+
+VISUAL NARRATIVES (DETAILED MECHANICS):
+Subject & Medium A landscape workplace safety poster (16:9 aspect ratio). Style: Hand-drawn corporate safety illustration with soft watercolor/airbrush shading and clean, continuous comic-style ink outlines. Aesthetic: Slightly vintage industrial training manual, semi-realistic but extremely clear. Background: Off-white/cream paper texture with a faint vintage vignette. CRITICAL CONVEYOR & MACHINERY RULES: - Conveyor lines and production machines MUST be mechanically logical. - You MUST NOT draw conveyor belts or pipes that suddenly cut off, float in mid-air, or start/end nowhere. - Conveyors must continuously extend off-screen or clearly connect to the next stage of machinery. All equipment must look physically grounded and complete. CRITICAL CONTINUITY & CAMERA RULES: - The structural background (machinery layout, tanks, pillars, drains) and character designs MUST remain highly consistent across all three panels. It is the exact same physical location. - However, DO NOT lock the viewer into a single static security-camera perspective. You must vary the camera angle or framing between panels (e.g., wide shot, closer medium angle, slightly different perspective) to create a dynamic, engaging comic-book narrative flow without breaking the architectural continuity. Header (The ONLY Text Allowed) Alignment: Centered at the very top. Font: Huge, bold, condensed sans-serif. Text Line 1 (Black, Largest): GMP COMPLIANCE — WASH HANDS Text Line 2 (Black, 40% size of header, directly below, crisp and sharp with NO double-printing): CONFORMITÉ BPF - LAVEZ-VOUS LES MAINS / KONFÒMITE GMP - LAVE MEN W No Other Text There is absolutely no other readable text, labels, titles, speech bubbles, or timestamps anywhere in the image. The panels themselves must be strictly visual. DO NOT generate text labels like "LEFT PANEL" or "RIGHT PANEL" anywhere in the image. Panel Layout & Status Icons Three equal-width rounded rectangular panels arranged Left / Center / Right. Left Panel: MUST feature a large RED CIRCULAR "X" MARK positioned perfectly centered at the very bottom of the panel. NO bottom text labels. NO arrows. Center Panel: MUST feature a large GREEN CIRCULAR CHECK MARK positioned perfectly centered at the very bottom of the panel. NO bottom text labels. NO arrows. Right Panel: MUST feature a large GREEN CIRCULAR CHECK MARK positioned perfectly centered at the very bottom of the panel. NO bottom text labels. NO arrows. Environment (Strictly Consistent) Camera Angle: Varying angles of the plant entrance hallway. Left: Wide shot. Center: Medium shot, slightly lower angle. Right: Close medium shot over the shoulder. The Subject/Machine: Industrial stainless steel multi-station hand sink with automated soap dispensers. The Floor: Red epoxy non-slip flooring with proper floor drains. Background: White ceramic tile walls. A doorway in the background reveals high-density stainless steel interconnected machinery and continuous conveyor belts extending safely off-screen. PPE Standards (Strict Adherence Required) Hard Hats: White for standard workers, Green for supervisor. Clear Safety Glasses, Solid Black Rubber Boots, White Uniforms. PROHIBITED: NO APRONS of any kind (specifically NO yellow aprons). CRITICAL BALACLAVA: All workers MUST wear a white polypropylene balaclava/hairnet covering their head, hair, and beard. Form: A thin, semi-transparent woven mesh material where the outline of the hair and face underneath is faintly visible. NOT a solid white sheet or astronaut helmet. Scenario Constraints (Pre-Sanitation Only) N/A. Visual Narratives (Detailed Mechanics) Absolutely NO ARROWS allowed anywhere in the illustration. Do NOT add diagram arrows, curved arrows, or floor arrows. LEFT PANEL: PHASE 1 - THE VIOLATION / THE HAZARD Motion Physics: Worker leaning forward slightly, taking brisk steps past the handwashing station. Primary Action/Error: Worker is walking directly past the stainless steel sink without stopping, attempting to enter the production floor unwashed. Secondary Character: Supervisor in the background observing the worker bypassing the station. CENTER PANEL: PHASE 2 - THE INTERVENTION / THE INSTRUCTION Primary Action: Supervisor steps directly into the worker's path, holding up a flat palm in a strict "stop" gesture. Gesture: Supervisor uses their other hand to point definitively at the stainless steel hand sink. Subject Reaction: Worker halts abruptly, acknowledging the sink. RIGHT PANEL: PHASE 3 - THE CORRECT TECHNIQUE / COMPLIANCE Motion Physics: Splashing water droplets and thick white soap lather forming on the hands. Primary Mechanics: Worker is standing at the sink, thoroughly rubbing thick soap lather over their hands under the running faucet. Secondary Character: Supervisor stands beside them with hands on hips, nodding in approval.
