@@ -20,11 +20,16 @@ export const SafetyPosterSchema = z.object({
 
 export type SafetyPosterData = z.infer<typeof SafetyPosterSchema>;
 
-export const GEMINI_TEXT_MODEL = "gemini-3.1-pro-preview";
+export const GEMINI_TEXT_MODEL_PRO = "gemini-3.1-pro-preview";
+export const GEMINI_TEXT_MODEL_FLASH = "gemini-3-flash-preview";
+export const GEMINI_TEXT_MODEL_LITE = "gemini-3.1-flash-lite-preview";
+
 export const GEMINI_IMAGE_MODEL_PRO = "gemini-3-pro-image-preview";
 export const GEMINI_IMAGE_MODEL_FLASH = "gemini-2.5-flash-image";
 export const GEMINI_IMAGE_MODEL_FLASH_3_1 = "gemini-3.1-flash-image-preview";
-export const GEMINI_EDIT_MODEL = "gemini-2.5-flash-image";
+
+export const GEMINI_TEXT_MODEL = GEMINI_TEXT_MODEL_LITE; // Default text model
+export const GEMINI_EDIT_MODEL = GEMINI_IMAGE_MODEL_FLASH;
 
 export interface VisionQAResult {
   isValid: boolean;

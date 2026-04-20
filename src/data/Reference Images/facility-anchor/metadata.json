@@ -3,380 +3,394 @@
     {
       "file": "01_processing-room-overview-conveyors-and-overhead-piping.jpg",
       "tags": [
-        "environment-ceiling"
+        "environment",
+        "ceiling"
       ],
       "category": "environment-ceiling"
     },
     {
       "file": "02_process-line-overview-stairs-guard-and-conveyors.jpg",
       "tags": [
-        "equipment-conveyor"
+        "environment",
+        "wide"
       ],
-      "category": "equipment-conveyor"
+      "category": "environment-wide"
     },
     {
       "file": "03_orange-sanitation-buckets-and-blue-lids-by-door.jpg",
       "tags": [
-        "scene-sanitation"
+        "environment",
+        "washdown"
       ],
-      "category": "scene-sanitation"
+      "category": "environment-washdown"
     },
     {
       "file": "04_stainless-tanks-and-piping-at-floor-level.jpg",
       "tags": [
-        "environment-floor"
+        "environment",
+        "floor"
       ],
       "category": "environment-floor"
     },
     {
       "file": "05_wet-floor-near-tanks-with-workers-inspecting.jpg",
       "tags": [
-        "scene-sanitation"
+        "environment",
+        "washdown"
       ],
-      "category": "scene-sanitation"
+      "category": "environment-washdown"
     },
     {
       "file": "06_crumble-product-flow-on-conveyor-closeup.jpg",
       "tags": [
-        "product-crumble"
+        "product",
+        "cooked"
       ],
-      "category": "product-crumble"
+      "category": "product-cooked"
     },
     {
       "file": "07_packaging-line-overview-curved-conveyor-and-incline.jpg",
       "tags": [
-        "scene-packaging"
+        "environment",
+        "wide"
       ],
-      "category": "scene-packaging"
+      "category": "environment-wide"
     },
     {
       "file": "08_patty-former-meat-buildup-and-floor-spillage.jpg",
       "tags": [
-        "product-raw"
+        "product",
+        "raw"
       ],
       "category": "product-raw"
     },
     {
       "file": "09_raw-patties-on-blue-belt-closeup.jpg",
       "tags": [
-        "product-raw"
+        "product",
+        "raw"
       ],
       "category": "product-raw"
     },
     {
       "file": "10_operator-working-beside-patty-conveyor.jpg",
       "tags": [
-        "scene-worker"
+        "environment",
+        "wide"
       ],
-      "category": "scene-worker"
+      "category": "environment-wide"
     },
     {
       "file": "11_frozen-patties-discharging-into-collection-system.jpg",
       "tags": [
-        "product-frozen"
+        "product",
+        "raw"
       ],
-      "category": "product-frozen"
+      "category": "product-raw"
     },
     {
       "file": "12_frozen-patties-piled-in-stainless-hopper.jpg",
       "tags": [
-        "product-frozen"
+        "environment",
+        "wide"
       ],
-      "category": "product-frozen"
+      "category": "environment-wide"
     },
     {
       "file": "13_pallet-lift-with-box-under-blue-wrap.jpg",
       "tags": [
-        "scene-packaging"
+        "environment",
+        "wide"
       ],
-      "category": "scene-packaging"
+      "category": "environment-wide"
     },
     {
       "file": "14_gloved-hand-holding-light-colored-crumble.jpg",
       "tags": [
-        "scene-worker"
+        "product",
+        "cooked"
       ],
-      "category": "scene-worker"
+      "category": "product-cooked"
     },
     {
       "file": "15_cooked-patties-on-freezer-belt-closeup.jpg",
       "tags": [
-        "product-cooked"
+        "product",
+        "cooked"
       ],
       "category": "product-cooked"
     },
     {
       "file": "16_full-frame-light-colored-crumble-texture.jpg",
       "tags": [
-        "product-crumble"
+        "product",
+        "cooked"
       ],
-      "category": "product-crumble"
+      "category": "product-cooked"
     },
     {
       "file": "17_gloved-hand-holding-golden-cooked-crumble.jpg",
       "tags": [
-        "scene-worker"
+        "product",
+        "cooked"
       ],
-      "category": "scene-worker"
+      "category": "product-cooked"
     },
     {
       "file": "18_cooked-crumble-on-frosted-freezer-belt.jpg",
       "tags": [
-        "product-cooked"
+        "product",
+        "cooked"
       ],
       "category": "product-cooked"
     },
     {
       "file": "19_narrow-aisle-between-tanks-and-tiled-wall.jpg",
       "tags": [
-        "environment-floor"
+        "environment",
+        "wide"
       ],
-      "category": "environment-floor"
+      "category": "environment-wide"
     },
     {
       "file": "20_raw-patties-on-blue-belt-angle-view.jpg",
       "tags": [
-        "product-raw"
+        "product",
+        "raw"
       ],
       "category": "product-raw"
     },
     {
       "file": "21_elevated-hopper-dumping-dark-cooked-crumble.jpg",
       "tags": [
-        "product-cooked"
+        "product",
+        "cooked"
       ],
       "category": "product-cooked"
     },
     {
       "file": "22_crumble-dropping-from-white-chute-to-conveyor.jpg",
       "tags": [
-        "product-crumble"
+        "product",
+        "cooked"
       ],
-      "category": "product-crumble"
+      "category": "product-cooked"
     },
     {
       "file": "23_touchscreen-control-panel-by-processing-equipment.jpg",
       "tags": [
-        "equipment-scales"
+        "environment",
+        "wide"
       ],
-      "category": "equipment-scales"
+      "category": "environment-wide"
     },
     {
       "file": "24_crumble-falling-into-white-transfer-conveyor.jpg",
       "tags": [
-        "product-crumble"
+        "product",
+        "cooked"
       ],
-      "category": "product-crumble"
+      "category": "product-cooked"
     },
     {
       "file": "25_machine-base-with-orange-power-cable-and-powdered-floor.jpg",
       "tags": [
-        "environment-floor"
+        "environment",
+        "floor"
       ],
       "category": "environment-floor"
     },
     {
       "file": "26_doorway-view-into-processing-room-with-red-tubs.jpg",
       "tags": [
-        "equipment-waste"
+        "environment",
+        "wide"
       ],
-      "category": "equipment-waste"
+      "category": "environment-wide"
     },
     {
       "file": "27_cardboard-box-on-blue-pallet-closeup.jpg",
       "tags": [
-        "scene-packaging"
+        "environment",
+        "wide"
       ],
-      "category": "scene-packaging"
+      "category": "environment-wide"
     },
     {
       "file": "28_wide-open-floor-area-with-overhead-piping.jpg",
       "tags": [
-        "environment-ceiling"
+        "environment",
+        "floor"
       ],
-      "category": "environment-ceiling"
+      "category": "environment-floor"
     },
     {
       "file": "29_overhead-view-of-blue-conveyor-with-crumble.jpg",
       "tags": [
-        "environment-ceiling"
+        "product",
+        "cooked"
       ],
-      "category": "environment-ceiling"
+      "category": "product-cooked"
     },
     {
       "file": "30_elevated-platform-view-of-long-blue-conveyor.jpg",
       "tags": [
-        "equipment-conveyor"
+        "environment",
+        "wide"
       ],
-      "category": "equipment-conveyor"
+      "category": "environment-wide"
     },
     {
       "file": "31_workers-sweeping-powder-near-equipment-base.jpg",
       "tags": [
-        "scene-worker"
+        "environment",
+        "wide"
       ],
-      "category": "scene-worker"
+      "category": "environment-wide"
     },
     {
       "file": "32_frozen-patties-exiting-freezer-on-belt.jpg",
       "tags": [
-        "product-frozen"
+        "product",
+        "cooked"
       ],
-      "category": "product-frozen"
+      "category": "product-cooked"
     },
     {
       "file": "33_top-down-view-into-hopper-with-light-crumble.jpg",
       "tags": [
-        "product-crumble"
+        "product",
+        "cooked"
       ],
-      "category": "product-crumble"
+      "category": "product-cooked"
     },
     {
       "file": "34_crumble-discharging-into-blue-lined-bin.jpg",
       "tags": [
-        "product-crumble"
+        "product",
+        "cooked"
       ],
-      "category": "product-crumble"
+      "category": "product-cooked"
     },
     {
       "file": "35_plastic-wrapped-bin-with-product-labels.jpg",
       "tags": [
-        "scene-packaging"
+        "environment",
+        "wide"
       ],
-      "category": "scene-packaging"
+      "category": "environment-wide"
     },
     {
       "file": "36_raw-patties-on-blue-belt-with-meat-buildup.jpg",
       "tags": [
-        "product-raw"
+        "product",
+        "raw"
       ],
       "category": "product-raw"
     },
     {
       "file": "37_blue-lined-hopper-bin-on-platform.jpg",
       "tags": [
-        "equipment-hopper"
+        "environment",
+        "wide"
       ],
-      "category": "equipment-hopper"
+      "category": "environment-wide"
     },
     {
       "file": "38_plastic-covered-bin-on-production-floor.jpg",
       "tags": [
-        "equipment-waste"
-      ],
-      "category": "equipment-waste"
-    },
-    {
-      "file": "39_patty-former-and-blue-belt-with-meat-spillage.jpg",
-      "tags": [
-        "product-raw"
-      ],
-      "category": "product-raw"
-    },
-    {
-      "file": "ceiling-utility-runs.png",
-      "tags": [
-        "environment-ceiling"
-      ],
-      "category": "environment-ceiling"
-    },
-    {
-      "file": "conveyor_control_panel_and_belt_entry.jpg",
-      "tags": [
-        "equipment-scales"
-      ],
-      "category": "equipment-scales"
-    },
-    {
-      "file": "elevated_hopper_and_screw_feed_system.jpg",
-      "tags": [
-        "equipment-hopper"
-      ],
-      "category": "equipment-hopper"
-    },
-    {
-      "file": "facility-floor-tanks.png",
-      "tags": [
-        "environment-floor"
+        "environment",
+        "floor"
       ],
       "category": "environment-floor"
     },
     {
-      "file": "facility-wide-shot.png",
+      "file": "39_patty-former-and-blue-belt-with-meat-spillage.jpg",
       "tags": [
-        "environment-wide"
+        "product",
+        "raw"
+      ],
+      "category": "product-raw"
+    },
+    {
+      "file": "conveyor_control_panel_and_belt_entry.jpg",
+      "tags": [
+        "environment",
+        "wide"
+      ],
+      "category": "environment-wide"
+    },
+    {
+      "file": "elevated_hopper_and_screw_feed_system.jpg",
+      "tags": [
+        "environment",
+        "wide"
       ],
       "category": "environment-wide"
     },
     {
       "file": "full_line_overview_conveyors_and_equipment.jpg",
       "tags": [
-        "equipment-conveyor"
+        "environment",
+        "wide"
       ],
-      "category": "equipment-conveyor"
+      "category": "environment-wide"
     },
     {
       "file": "incline_conveyor_and_transfer_system.jpg",
       "tags": [
-        "equipment-conveyor"
+        "environment",
+        "wide"
       ],
-      "category": "equipment-conveyor"
+      "category": "environment-wide"
     },
     {
       "file": "overhead_piping_red_lines_processing_area.jpg",
       "tags": [
-        "environment-ceiling"
+        "environment",
+        "ceiling"
       ],
       "category": "environment-ceiling"
     },
     {
       "file": "patty_freezer_outfeed_frosted_belt.jpg",
       "tags": [
-        "product-frozen"
+        "environment",
+        "wide"
       ],
-      "category": "product-frozen"
-    },
-    {
-      "file": "product-cooked-patties.png",
-      "tags": [
-        "product-cooked"
-      ],
-      "category": "product-cooked"
-    },
-    {
-      "file": "product-raw-patties.png",
-      "tags": [
-        "product-raw"
-      ],
-      "category": "product-raw"
+      "category": "environment-wide"
     },
     {
       "file": "production_floor_wide_powder_residue.jpg",
       "tags": [
-        "environment-floor"
+        "environment",
+        "floor"
       ],
       "category": "environment-floor"
     },
     {
       "file": "sausage_processing_line_wide_view.jpg",
       "tags": [
-        "environment-wide"
+        "environment",
+        "wide"
       ],
       "category": "environment-wide"
     },
     {
       "file": "top_down_hopper_with_ground_product.jpg",
       "tags": [
-        "product-crumble"
+        "environment",
+        "wide"
       ],
-      "category": "product-crumble"
+      "category": "environment-wide"
     },
     {
       "file": "washdown_mist_processing_area.jpg",
       "tags": [
-        "scene-sanitation"
+        "environment",
+        "washdown"
       ],
-      "category": "scene-sanitation"
+      "category": "environment-washdown"
     }
   ]
 }

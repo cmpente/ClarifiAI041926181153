@@ -34,12 +34,24 @@ import {
   Search,
   Copy,
   Upload,
-  Camera
+  Camera,
+  ExternalLink
 } from 'lucide-react';
 import { GeminiService } from './services/geminiService';
 import { DebugStyleBaseline } from './components/DebugStyleBaseline';
 import { ClarifiLogo } from './components/ClarifiLogo';
-import { SafetyPosterData, MASTER_IMAGE_PROMPT_TEMPLATE, GEMINI_TEXT_MODEL, GEMINI_IMAGE_MODEL_PRO, GEMINI_IMAGE_MODEL_FLASH, GEMINI_IMAGE_MODEL_FLASH_3_1, VisionQAResult } from './constants';
+import { 
+  SafetyPosterData, 
+  MASTER_IMAGE_PROMPT_TEMPLATE, 
+  GEMINI_TEXT_MODEL, 
+  GEMINI_TEXT_MODEL_PRO,
+  GEMINI_TEXT_MODEL_FLASH, 
+  GEMINI_TEXT_MODEL_LITE,
+  GEMINI_IMAGE_MODEL_PRO, 
+  GEMINI_IMAGE_MODEL_FLASH, 
+  GEMINI_IMAGE_MODEL_FLASH_3_1, 
+  VisionQAResult 
+} from './constants';
 import { ACTION_TEMPLATES, generateProceduralActions, generateProceduralEnvironments } from './data/proceduralOptions';
 import { SafetyTopic, SUGGESTED_TOPICS, TOPIC_CATEGORIES } from './lib/safetyTopics';
 import { get, set } from 'idb-keyval';
@@ -694,75 +706,86 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Advanced Configuration UI (Now visible by default instead of hidden away) */}
-                <div className="w-full text-left bg-zinc-900/50 border border-zinc-800 rounded-2xl overflow-hidden mt-4">
-                  <div className="p-4 border-b border-zinc-800 flex justify-between items-center bg-zinc-900/80">
-                    <span className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-zinc-400">
-                      <LayoutGrid className="w-4 h-4 text-emerald-500" /> Advanced Configuration
-                    </span>
+                {/* Cohesive Control Center (Toolbar Layout) */}
+                <div className="w-full text-left bg-zinc-900/40 border border-zinc-800/60 rounded-3xl p-2 mt-4 backdrop-blur-sm shadow-2xl flex flex-wrap items-center gap-1">
+                  {/* Text Strategy Group */}
+                  <div className="flex items-center gap-2 px-3 py-2 border-r border-zinc-800/50">
+                    <TypeIcon className="w-3.5 h-3.5 text-zinc-600" />
+                    <div className="flex items-center bg-zinc-950/40 rounded-xl p-1 border border-zinc-800/40">
+                      <button 
+                        onClick={() => handleModelSwitch('text', GEMINI_TEXT_MODEL_PRO)} 
+                        className={`px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest rounded-lg transition-all duration-300 ${textModel === GEMINI_TEXT_MODEL_PRO ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/20' : 'text-zinc-500 hover:text-zinc-300'}`}
+                      >
+                        3.1 Pro
+                      </button>
+                      <button 
+                        onClick={() => handleModelSwitch('text', GEMINI_TEXT_MODEL_FLASH)} 
+                        className={`px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest rounded-lg transition-all duration-300 ${textModel === GEMINI_TEXT_MODEL_FLASH ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/20' : 'text-zinc-500 hover:text-zinc-300'}`}
+                      >
+                        3 Flash
+                      </button>
+                      <button 
+                        onClick={() => handleModelSwitch('text', GEMINI_TEXT_MODEL_LITE)} 
+                        className={`px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest rounded-lg transition-all duration-300 ${textModel === GEMINI_TEXT_MODEL_LITE ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/20' : 'text-zinc-500 hover:text-zinc-300'}`}
+                      >
+                        3.1 Lite
+                      </button>
+                    </div>
                   </div>
-                  <div className="p-4 space-y-6">
-                    <div className="flex flex-wrap gap-4 pt-2">
-                       <div className="space-y-1.5">
-                        <label className="text-[9px] font-black uppercase tracking-widest text-zinc-500">Text Model</label>
-                        <div className="flex items-center bg-zinc-950 rounded-lg p-1 border border-zinc-800">
-                          <button onClick={() => handleModelSwitch('text', 'gemini-3.1-flash-lite-preview')} className={`px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-md transition-all ${textModel === 'gemini-3.1-flash-lite-preview' ? 'bg-emerald-500 text-black' : 'text-zinc-500 hover:text-zinc-300'}`}>Flash</button>
-                          <button onClick={() => handleModelSwitch('text', 'gemini-3.1-pro-preview')} className={`px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-md transition-all ${textModel === 'gemini-3.1-pro-preview' ? 'bg-emerald-500 text-black' : 'text-zinc-500 hover:text-zinc-300'}`}>Pro</button>
-                        </div>
-                      </div>
 
-                      <div className="space-y-1.5">
-                        <label className="text-[9px] font-black uppercase tracking-widest text-zinc-500">Image Model</label>
-                        <div className="flex items-center bg-zinc-950 rounded-lg p-1 border border-zinc-800">
-                          <button 
-                            onClick={() => handleModelSwitch('image', GEMINI_IMAGE_MODEL_FLASH)} 
-                            className={`px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-md transition-all ${imageModel === GEMINI_IMAGE_MODEL_FLASH ? 'bg-emerald-500 text-black' : 'text-zinc-500 hover:text-zinc-300'}`}
-                          >
-                            Fast
-                          </button>
-                          <button 
-                            onClick={() => handleModelSwitch('image', GEMINI_IMAGE_MODEL_FLASH_3_1)} 
-                            className={`px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-md transition-all ${imageModel === GEMINI_IMAGE_MODEL_FLASH_3_1 ? 'bg-emerald-500 text-black' : 'text-zinc-500 hover:text-zinc-300'}`}
-                          >
-                            3.1 Flash
-                          </button>
-                          <button 
-                            onClick={() => handleModelSwitch('image', GEMINI_IMAGE_MODEL_PRO)} 
-                            className={`px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-md transition-all ${imageModel === GEMINI_IMAGE_MODEL_PRO ? 'bg-emerald-500 text-black' : 'text-zinc-500 hover:text-zinc-300'}`}
-                          >
-                            Pro
-                          </button>
-                        </div>
-                      </div>
+                  {/* Image Generation Group */}
+                  <div className="flex items-center gap-2 px-3 py-2 border-r border-zinc-800/50">
+                    <ImageIcon className="w-3.5 h-3.5 text-zinc-600" />
+                    <div className="flex items-center bg-zinc-950/40 rounded-xl p-1 border border-zinc-800/40">
+                      <button 
+                        onClick={() => handleModelSwitch('image', GEMINI_IMAGE_MODEL_FLASH_3_1)} 
+                        className={`px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest rounded-lg transition-all duration-300 ${imageModel === GEMINI_IMAGE_MODEL_FLASH_3_1 ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/20' : 'text-zinc-500 hover:text-zinc-300'}`}
+                      >
+                        Banana 2
+                      </button>
+                      <button 
+                        onClick={() => handleModelSwitch('image', GEMINI_IMAGE_MODEL_PRO)} 
+                        className={`px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest rounded-lg transition-all duration-300 ${imageModel === GEMINI_IMAGE_MODEL_PRO ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/20' : 'text-zinc-500 hover:text-zinc-300'}`}
+                      >
+                        Banana Pro
+                      </button>
+                      <button 
+                        onClick={() => handleModelSwitch('image', GEMINI_IMAGE_MODEL_FLASH)} 
+                        className={`px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest rounded-lg transition-all duration-300 ${imageModel === GEMINI_IMAGE_MODEL_FLASH ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/20' : 'text-zinc-500 hover:text-zinc-300'}`}
+                      >
+                        Banana
+                      </button>
+                    </div>
+                  </div>
 
-                      {(imageModel === GEMINI_IMAGE_MODEL_PRO || imageModel === GEMINI_IMAGE_MODEL_FLASH_3_1) && (
-                        <div className="space-y-1.5">
-                          <label className="text-[9px] font-black uppercase tracking-widest text-zinc-500">Image Size</label>
-                          <div className="flex items-center bg-zinc-950 rounded-lg p-1 border border-zinc-800">
-                            {['1K', '2K', '4K'].map((size) => (
-                              <button key={size} onClick={() => setImageSize(size)} className={`px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-md transition-all ${imageSize === size ? 'bg-zinc-700 text-white' : 'text-zinc-500 hover:text-zinc-300'}`}>{size}</button>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                      
-                      <div className="flex items-end gap-2 pb-1">
-                        <button 
-                          onClick={() => setExaggerate(!exaggerate)}
-                          className={`flex items-center justify-center gap-2 px-3 py-2 rounded-lg border transition-all ${exaggerate ? 'bg-amber-500/10 border-amber-500/50 text-amber-500' : 'bg-zinc-950 border-zinc-800 text-zinc-500 hover:border-zinc-700'}`}
-                        >
-                          <Zap className={`w-3.5 h-3.5 ${exaggerate ? 'fill-amber-500' : ''}`} />
-                          <span className="text-[9px] font-black uppercase tracking-widest whitespace-nowrap">Exaggerate</span>
-                        </button>
-                        <button 
-                          onClick={() => setHazardHunt(!hazardHunt)}
-                          className={`flex items-center justify-center gap-2 px-3 py-2 rounded-lg border transition-all ${hazardHunt ? 'bg-purple-500/10 border-purple-500/50 text-purple-500' : 'bg-zinc-950 border-zinc-800 text-zinc-500 hover:border-zinc-700'}`}
-                        >
-                          <Search className={`w-3.5 h-3.5 ${hazardHunt ? 'fill-purple-500' : ''}`} />
-                          <span className="text-[9px] font-black uppercase tracking-widest whitespace-nowrap">Hazard Hunt</span>
-                        </button>
+                  {/* Size Preset (Conditional) */}
+                  {(imageModel === GEMINI_IMAGE_MODEL_PRO || imageModel === GEMINI_IMAGE_MODEL_FLASH_3_1) && (
+                    <div className="flex items-center gap-2 px-3 py-2 border-r border-zinc-800/50">
+                      <Maximize2 className="w-3.5 h-3.5 text-zinc-600" />
+                      <div className="flex items-center bg-zinc-950/40 rounded-xl p-1 border border-zinc-800/40">
+                        {['1K', '2K', '4K'].map((size) => (
+                          <button key={size} onClick={() => setImageSize(size)} className={`px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest rounded-lg transition-all duration-300 ${imageSize === size ? 'bg-zinc-800 text-white shadow-md' : 'text-zinc-500 hover:text-zinc-300'}`}>{size}</button>
+                        ))}
                       </div>
                     </div>
+                  )}
+
+                  {/* Mode Toggles */}
+                  <div className="flex items-center gap-1 px-3 py-2">
+                    <button 
+                      onClick={() => setExaggerate(!exaggerate)}
+                      className={`p-2 rounded-xl border transition-all duration-300 group ${exaggerate ? 'bg-amber-500/10 border-amber-500/50 text-amber-500 shadow-lg shadow-amber-500/5' : 'bg-zinc-950/40 border-zinc-800/40 text-zinc-600 hover:border-zinc-700 hover:text-zinc-400'}`}
+                      title="Exaggerate Mode"
+                    >
+                      <Zap className={`w-4 h-4 transition-transform group-hover:scale-110 ${exaggerate ? 'fill-amber-500 text-amber-500' : ''}`} />
+                    </button>
+                    <button 
+                      onClick={() => setHazardHunt(!hazardHunt)}
+                      className={`p-2 rounded-xl border transition-all duration-300 group ${hazardHunt ? 'bg-purple-500/10 border-purple-500/50 text-purple-500 shadow-lg shadow-purple-500/5' : 'bg-zinc-950/40 border-zinc-800/40 text-zinc-600 hover:border-zinc-700 hover:text-zinc-400'}`}
+                      title="Hazard Hunt"
+                    >
+                      <Search className={`w-4 h-4 transition-transform group-hover:scale-110 ${hazardHunt ? 'fill-purple-500 text-purple-500' : ''}`} />
+                    </button>
                   </div>
                 </div>
 

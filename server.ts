@@ -81,19 +81,24 @@ If the user's topic involves "washdown", "sanitation", "hosing", or "cleaning", 
 - Instead, the actions must depict PREPARATION: covering HMIs/screens with plastic bags, clearing the last loose product, gathering tools, or locking out equipment.
 
 Visual Narratives (Detailed Mechanics)
+RENDERING RULES FOR NARRATIVE SECTIONS:
+The markers <<<panel-one-content>>>, <<<panel-two-content>>>, and <<<panel-three-content>>> are STRUCTURAL DELIMITERS ONLY. They indicate which panel the following description belongs to. They MUST NEVER appear as rendered text in the output image. Do not render any word containing angle brackets, triple-less-than signs, or the word "panel" anywhere in the output.
+
+The ONLY text in the output image is the two-line header at the very top. Zero exceptions, zero labels, zero panel indicators.
+
 Absolutely NO ARROWS allowed anywhere in the illustration. Do NOT add diagram arrows, curved arrows, or floor arrows.
 
-LEFT PANEL: [PHASE 1 - THE VIOLATION / THE HAZARD]
+<<<panel-one-content>>> Phase 1 — The Violation / The Hazard
 Motion Physics: [OPTIONAL MOVEMENT CUES - e.g., Horizontal speed lines, but NO ARROWS].
 Primary Action/Error: [SPECIFIC PHYSICAL DESCRIPTION OF THE MISTAKE].
 Secondary Character: [POSITION AND REACTION - e.g., Supervisor waving hands].
 
-CENTER PANEL: [PHASE 2 - THE INTERVENTION / THE INSTRUCTION]
+<<<panel-two-content>>> Phase 2 — The Intervention / The Instruction
 Primary Action: [SPECIFIC DESCRIPTION OF CORRECTION/COACHING].
 Gesture: [SPECIFIC PHYSICAL MOVEMENT - e.g., Pointing out safety procedure without drawing literal arrows].
 Subject Reaction: [RESPONSE TO INSTRUCTION].
 
-RIGHT PANEL: [PHASE 3 - THE CORRECT TECHNIQUE / COMPLIANCE]
+<<<panel-three-content>>> Phase 3 — The Correct Technique / Compliance
 Motion Physics: [OPTIONAL MOVEMENT CUES - NO ARROWS].
 Primary Mechanics: [SPECIFIC PHYSICAL DESCRIPTION OF THE CORRECT PROCEDURE].
 Secondary Character: [POSITION AND REACTION - e.g., Supervisor giving thumbs up].
@@ -335,11 +340,18 @@ Every human figure in this image MUST have ALL six of the following visible simu
    - Mesh weave is finely woven, faintly showing face outline underneath
    - NOT a solid opaque white cap, NOT an astronaut helmet
 
-3. Clear safety glasses:
-   - Thin frames (black or clear), transparent lenses
-   - Positioned over the eyes
-   - VISIBLE ON EVERY CHARACTER IN EVERY PANEL — this is the most commonly omitted PPE item
-   - Draw the glasses even if partially occluded by hard hat brim
+3. Clear safety glasses — PRE-RENDER ORDER INSTRUCTION:
+
+Before rendering any character's face in any panel, execute this drawing sequence:
+a. Draw the white mesh balaclava covering hair and lower face
+b. Draw the hard hat brim line across the forehead
+c. In the exposed eye strip between balaclava edge and eyebrows, DRAW TWO CLEAR SAFETY GLASS LENSES before rendering any facial features
+d. The glasses appear as two rounded rectangular transparent lenses with thin black or clear frames, temple arms extending back over the balaclava fabric
+e. Only AFTER the glasses are drawn, render eyes, nose, mouth behind/around them
+
+Rendering any face without executing step (c) produces a non-compliant image. Safety glasses are MANDATORY on every character in every panel, no exceptions for occlusion, pose, or distance.
+
+In prior generations, safety glasses were omitted from 100% of characters despite being required. This is the single highest-priority PPE item. If unsure, draw the glasses larger and more visible rather than smaller and subtle.
 
 4. Blue nitrile gloves on BOTH hands:
    - Medical-style fitted gloves, cobalt blue color
@@ -474,8 +486,43 @@ CRITICAL:
 These environment constraints are mandatory.
 Do not simplify, generalize, or remove details.
 
+REFERENCE IMAGE CHANNELS (two distinct groups, different roles):
+
+STYLE REFERENCE IMAGES — use ONLY for illustration technique:
+The first set of reference images are illustrated safety posters from a different facility. Use these references EXCLUSIVELY to match:
+- Linework quality and ink style
+- Watercolor/airbrush shading technique  
+- Color palette (muted vintage tones)
+- Three-panel layout proportions
+- Character body proportions and rendering style
+- Overall "vintage industrial training manual" aesthetic
+
+DO NOT copy the environments, equipment, or facility details from these style references. Those belong to a different plant and are NOT what our scene should look like.
+
+FACILITY REFERENCE IMAGES — use ONLY for environmental authenticity:
+The second set of reference images are PHOTOGRAPHS of the actual Tyson Prepared Foods facility in Waterloo, Iowa, which is the physical location our scene depicts. Translate these photographic environmental elements into the illustrated style:
+- Reddish-brown epoxy floor with wet sheen
+- Mixed wall surfaces (corrugated silver metal panels + white ceramic tile)
+- Exposed raw concrete ceiling beams with dense overhead utility runs
+- Clear plastic sheeting draped from ceiling (iconic feature)
+- Orange 55-gallon rolling waste drums
+- Blue modular plastic conveyor belts
+- Cluttered industrial density — NOT minimal backgrounds
+
+DO NOT photograph-copy these facility references. Translate them through the illustration style from the style reference channel. The output is an illustrated poster depicting the real facility, not a photo, not a generic factory.
+
+CROSS-REFERENCE INSTRUCTION:
+"Use the ILLUSTRATION TECHNIQUE from the style reference posters + the ENVIRONMENTAL DETAILS from the facility reference photographs. Combine both."
+
+RENDERING RULES FOR NARRATIVE SECTIONS:
+The markers <<<panel-one-content>>>, <<<panel-two-content>>>, and <<<panel-three-content>>> are STRUCTURAL DELIMITERS ONLY. They indicate which panel the following description belongs to. They MUST NEVER appear as rendered text in the output image. Do not render any word containing angle brackets, triple-less-than signs, or the word "panel" anywhere in the output.
+
+The ONLY text in the output image is the two-line header at the very top. Zero exceptions, zero labels, zero panel indicators.
+
 VISUAL NARRATIVES (DETAILED MECHANICS):
-${prompt}`;
+${prompt.replace(/<<<panel-(one|two|three)-content>>>/g, '$& REMINDER: Before rendering faces in this panel, execute the safety glasses pre-render instruction (draw lenses before facial features).')}
+
+REMINDER: Every character must have visible safety glasses. This rule has failed in every prior generation.`;
 }
 
 async function startServer() {
@@ -949,6 +996,17 @@ Return ONLY the raw string, do NOT wrap in quotes. Keep it extremely brief.`;
                 }
               });
             }
+            
+            // Fix B: Add PPE Reference image at the end of style anchors for recency weight
+            const ppeRefPath = path.join(styleLockDir, 'ppe-reference', 'worker-with-safety-glasses.png');
+            if (fs.existsSync(ppeRefPath)) {
+              console.log('[Server] Adding PPE reference image to style anchors.');
+              // Note: generate-image uses fs.readFileSync directly for base64 in 990, keeping style
+              const ppeBase64 = fs.readFileSync(ppeRefPath, { encoding: 'base64' });
+              const ppeMime = 'image/png';
+              styleLockParts.push({ text: 'COMPLIANT PPE REFERENCE: The attached "worker-with-safety-glasses" reference shows exactly how safety glasses must be rendered on every character. Copy this PPE rendering onto every face in every panel.' });
+              styleLockParts.push({ inlineData: { mimeType: ppeMime, data: ppeBase64 } });
+            }
           }
         } catch (e) {
           console.error("[Proxy] Error loading style lock images:", e);
@@ -1128,6 +1186,15 @@ Return ONLY the raw string, do NOT wrap in quotes. Keep it extremely brief.`;
           }
           styleLockParts.push({ inlineData: { mimeType, data: base64Data } });
         }
+        
+        // Fix B: Add PPE Reference image at the end of style anchors for recency weight
+        const ppeRefPath = path.join(styleLockDir, 'ppe-reference', 'worker-with-safety-glasses.png');
+        if (fs.existsSync(ppeRefPath)) {
+          console.log('[Server] Adding PPE reference image to style anchors.');
+          const { base64: ppeBase64, mimeType: ppeMime } = await prepareImageBase64(ppeRefPath);
+          styleLockParts.push({ text: 'COMPLIANT PPE REFERENCE: The attached "worker-with-safety-glasses" reference shows exactly how safety glasses must be rendered on every character. Copy this PPE rendering onto every face in every panel.' });
+          styleLockParts.push({ inlineData: { mimeType: ppeMime, data: ppeBase64 } });
+        }
       }
     } catch (e) {}
 
@@ -1233,16 +1300,42 @@ Return ONLY the raw string, do NOT wrap in quotes. Keep it extremely brief.`;
         }
 
         const imgParts = [
-          { text: "STYLE REFERENCE IMAGES: The attached style reference posters show the target illustration aesthetic. Match this linework, color palette, and shading approach." },
-          ...styleLockParts,
-          { text: `FACILITY REFERENCE IMAGES: The ${facilityAnchorParts.length} attached reference images show exactly what this facility looks like. Replicate these environmental and product characteristics precisely.` },
+          { text: imgPromptHtml },
+          { text: `FACILITY REFERENCE PHOTOGRAPHS (Environmental Anchors): Use these ${facilityAnchorParts.length} images for accurate environment, equipment, and facility details.` },
           ...facilityAnchorParts,
-          { text: imgPromptHtml }
+          { text: "STYLE REFERENCE POSTERS (Aesthetic Anchors): Use these images EXCLUSIVELY for the illustration style, shading, and linework technique." },
+          ...styleLockParts
         ];
 
         await validateImageParts(imgParts);
 
         const imgModelName = 'gemini-3-pro-image-preview';
+
+        console.log('[LiveRun] ============ GEMINI PAYLOAD AUDIT ============');
+        console.log('[LiveRun] Model:', imgModelName);
+        console.log('[LiveRun] Total parts:', imgParts.length);
+
+        let totalBase64Chars = 0;
+        for (let i = 0; i < imgParts.length; i++) {
+          const part = imgParts[i];
+          if ('inlineData' in part && part.inlineData) {
+            const b64 = part.inlineData.data;
+            const mime = part.inlineData.mimeType;
+            const decodedBytes = Math.floor(b64.length * 3 / 4);
+            const magic = Buffer.from(b64.substring(0, 12), 'base64').toString('hex');
+            console.log(`[LiveRun] Part[${i}]: inlineData mime=${mime} base64chars=${b64.length} decodedBytes=${decodedBytes} magic=${magic}`);
+            totalBase64Chars += b64.length;
+          } else if ('text' in part) {
+            console.log(`[LiveRun] Part[${i}]: text length=${part.text.length}, preview="${part.text.substring(0, 80).replace(/\n/g, ' ')}"`);
+          } else {
+            console.log(`[LiveRun] Part[${i}]: UNKNOWN TYPE`, Object.keys(part));
+          }
+        }
+
+        console.log(`[LiveRun] Total base64 chars: ${totalBase64Chars}`);
+        console.log(`[LiveRun] Total base64 bytes: ${totalBase64Chars} (~${(totalBase64Chars / 1024 / 1024).toFixed(2)} MB encoded)`);
+        console.log(`[LiveRun] Estimated decoded image bytes: ${Math.floor(totalBase64Chars * 3 / 4)} (~${(totalBase64Chars * 3 / 4 / 1024 / 1024).toFixed(2)} MB decoded)`);
+        console.log('[LiveRun] ============================================');
         
         const imgResp = await ai.models.generateContent({
           model: imgModelName,
