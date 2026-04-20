@@ -1,3 +1,8 @@
+/**
+ * CLI baseline runner. Writes to tests/style-baseline/before/ directly.
+ * Works in environments with a writable filesystem (local dev, CI).
+ * Does NOT work in AI Studio — use the in-browser Debug Baseline panel instead.
+ */
 import * as fs from 'fs';
 import * as path from 'path';
 import * as crypto from 'crypto';

@@ -208,22 +208,41 @@ async function startServer() {
     }
   }, 600000);
 
+  // Define helper to securely extract API keys and reject placeholders
+  function getApiKey(req: express.Request): string {
+    const headerKey = req.header('x-goog-api-key');
+    const envKey = process.env.API_KEY || process.env.GEMINI_API_KEY;
+    
+    const isPlaceholder = (k: string | undefined) => 
+      !k || k === 'MY_GEMINI_API_KEY' || k === 'your-key-here' || k.length < 30;
+    
+    if (headerKey && !isPlaceholder(headerKey)) return headerKey;
+    if (envKey && !isPlaceholder(envKey)) return envKey;
+    
+    throw new Error(
+      "No valid Gemini API key available. " +
+      "Set GEMINI_API_KEY in .env.local with a real key, " +
+      "or pass x-goog-api-key header from the client."
+    );
+  }
+
   // API Routes
   app.get("/api/health", (req, res) => {
-    res.json({ 
-      status: "ok", 
-      envApiKey: process.env.API_KEY, 
-      envGeminiKey: process.env.GEMINI_API_KEY,
-      headerKey: req.header('x-goog-api-key'),
-      cwd: process.cwd(),
-      hasEnv: fs.existsSync('.env'),
-      hasEnvExample: fs.existsSync('.env.example'),
-      envExampleContent: fs.existsSync('.env.example') ? fs.readFileSync('.env.example', 'utf-8') : null
+    const envKey = process.env.API_KEY || process.env.GEMINI_API_KEY;
+    res.json({
+      status: "ok",
+      hasServerKey: !!envKey && envKey !== 'MY_GEMINI_API_KEY' && envKey.length >= 30,
     });
   });
 
   app.get("/api/config", (req, res) => {
-    const hasServerKey = !!(process.env.API_KEY || process.env.GEMINI_API_KEY);
+    let hasServerKey = false;
+    try {
+      getApiKey(req);
+      hasServerKey = true;
+    } catch (e) {
+      hasServerKey = false;
+    }
     res.json({ hasServerKey });
   });
 
@@ -755,19 +774,24 @@ Return ONLY the raw string, do NOT wrap in quotes. Keep it extremely brief.`;
 
   
   app.get("/api/debug/run-style-baseline", async (req, res) => {
+    console.log('[Server] Debug baseline endpoint hit. NODE_ENV:', process.env.NODE_ENV);
     if (process.env.NODE_ENV === 'production') {
+      console.log('[Server] Rejecting - production mode');
       return res.status(404).json({ error: "Not found" });
     }
     
+    res.setHeader('X-Accel-Buffering', 'no');
     res.writeHead(200, {
       'Content-Type': 'text/event-stream',
       'Cache-Control': 'no-cache',
       'Connection': 'keep-alive',
     });
 
-    const apiKey = (req.query.key as string) || process.env.GEMINI_API_KEY || process.env.API_KEY || req.header('x-goog-api-key');
-    if (!apiKey) {
-      res.write(`data: ${JSON.stringify({ event: 'run-error', error: 'No API Key' })}\n\n`);
+    let apiKey;
+    try {
+      apiKey = getApiKey(req);
+    } catch(err: any) {
+      res.write(`data: ${JSON.stringify({ event: 'run-error', error: err.message })}\n\n`);
       res.end();
       return;
     }
@@ -789,15 +813,6 @@ Return ONLY the raw string, do NOT wrap in quotes. Keep it extremely brief.`;
       return;
     }
 
-    const beforeDir = path.join(process.cwd(), 'tests', 'style-baseline', 'before');
-    if (!fs.existsSync(beforeDir)) fs.mkdirSync(beforeDir, { recursive: true });
-    
-    const manifestPath = path.join(beforeDir, 'run-manifest.json');
-    let manifest: any = {};
-    if (fs.existsSync(manifestPath)) {
-      try { manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8')); } catch(e){}
-    }
-
     const styleLockDir = path.join(process.cwd(), 'src', 'data', 'Reference Images');
     const styleLockParts: any[] = [];
     try {
@@ -813,16 +828,16 @@ Return ONLY the raw string, do NOT wrap in quotes. Keep it extremely brief.`;
     } catch (e) {}
 
     let totalCost = 0;
+    const manifest: any[] = [];
+
+    const sendSSE = (event: string, payload: any) => {
+      res.write(`event: ${event}\n`);
+      res.write(`data: ${JSON.stringify(payload)}\n\n`);
+      if (typeof (res as any).flush === 'function') (res as any).flush();
+    }
 
     for (const topic of topics) {
       const slug = topic.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-      const pngPath = path.join(beforeDir, `${slug}.png`);
-      const txtPath = path.join(beforeDir, `${slug}.prompt.txt`);
-      
-      if (!force && fs.existsSync(pngPath)) {
-        res.write(`data: ${JSON.stringify({ event: 'topic-skipped', slug, topic })}\n\n`);
-        continue;
-      }
       
       try {
         const t0 = Date.now();
@@ -901,9 +916,6 @@ Return ONLY the raw string, do NOT wrap in quotes. Keep it extremely brief.`;
         }
 
         const imgPromptHtml = getMasterStyleWrapper(posterPrompt, environmentProfile);
-        // De-escape if needed, but since we parsed from a template literal, we just use it directly.
-        // Let's actually dynamically reconstruct the wrapper to ensure correct values, since we replaced variables in the regex.
-        // Wait, getMasterStyleWrapper correctly fills variables.
         
         const imgParts = [...styleLockParts, { text: imgPromptHtml }];
         const imgModelName = 'gemini-3-pro-image-preview';
@@ -924,55 +936,62 @@ Return ONLY the raw string, do NOT wrap in quotes. Keep it extremely brief.`;
         const imgCost = 0.03; // Fixed cost for pro image 1k
         const t2 = Date.now();
 
-        // WRITE FILES
-        fs.writeFileSync(pngPath, Buffer.from(base64, 'base64'));
-        fs.writeFileSync(txtPath, imgPromptHtml);
-
-        const imgFileBuf = fs.readFileSync(pngPath);
-        const imgHash = crypto.createHash('sha256').update(imgFileBuf).digest('hex');
+        const imgBuffer = Buffer.from(base64, 'base64');
+        const imgHash = crypto.createHash('sha256').update(imgBuffer).digest('hex');
         
-        const txtFileBuf = fs.readFileSync(txtPath);
-        const txtHash = crypto.createHash('sha256').update(txtFileBuf).digest('hex');
+        const txtBuffer = Buffer.from(imgPromptHtml, 'utf-8');
+        const txtHash = crypto.createHash('sha256').update(txtBuffer).digest('hex');
 
         const topicCost = txtCost + imgCost;
         totalCost += topicCost;
 
-        manifest[topic] = {
+        const topicData = {
           topic,
+          slug,
           imageFile: `${slug}.png`,
-          imageSize: imgFileBuf.length,
+          imageSize: imgBuffer.length,
           imageHash: imgHash,
           promptFile: `${slug}.prompt.txt`,
-          promptSize: txtFileBuf.length,
+          promptSize: txtBuffer.length,
           promptHash: txtHash,
           cost: topicCost,
           timeTextGenMs: t1 - t0,
           timeImageGenMs: t2 - t1,
           timeTotalMs: t2 - t0,
           modelText: textModelName,
-          modelImage: imgModelName
+          modelImage: imgModelName,
+          pngBase64: base64,
+          promptText: imgPromptHtml
         };
+        
+        const topicSummary = { ...topicData };
+        delete topicSummary.pngBase64;
+        delete topicSummary.promptText;
+        manifest.push(topicSummary);
 
-        res.write(`data: ${JSON.stringify({ event: 'topic-complete', slug, topic, data: manifest[topic] })}\n\n`);
+        sendSSE('topic-complete', topicData);
 
       } catch (err: any) {
-        res.write(`data: ${JSON.stringify({ event: 'topic-error', slug, topic, error: err.message || err.toString() })}\n\n`);
+        sendSSE('topic-error', { slug, topic, error: err.message || err.toString() });
       }
     }
 
-    fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
-    res.write(`data: ${JSON.stringify({ event: 'run-complete', totalCost })}\n\n`);
+    sendSSE('run-complete', { totalCost, manifest });
     res.end();
   });
 
   app.post("/api/gemini/vision-qa", async (req, res) => {
   try {
     const { image } = req.body;
-    const apiKey = req.headers["x-goog-api-key"] as string || process.env.GEMINI_API_KEY;
-    if (!apiKey) return res.status(400).send("API Key missing");
+    let apiKey;
+    try {
+      apiKey = getApiKey(req);
+    } catch(err: any) {
+      return res.status(400).send(err.message);
+    }
 
     const ai = new GoogleGenAI({ apiKey });
-    const model = "gemini-3.1-flash-lite-preview"; // Use flash lite for fast vision QA
+    const model = "gemini-1.5-flash"; // Use flash for fast vision QA
 
     const systemInstruction = `You are a quality assurance auditor for industrial safety posters.
 Evaluate the provided image against the Master Base Prompt requirements:
